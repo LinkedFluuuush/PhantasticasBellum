@@ -9,23 +9,20 @@ import java.util.List;
  *
  * @author Gwenole Lecorve
  */
-public class IA extends Joueur {
-        
+public abstract class IA extends Joueur {
+
     /**
      * Constructeur
      */
-    public IA() {
-        super("IA aleatoire");
+    public IA(String nom) {
+        super(nom);
     }
-    
+
     /**
      * Recherche le coup a jouer
      * @param p Partie en cours
      * @return un coup
      */
-    public Coup getCoup(Partie p) {
-        List<Coup> coups = p.getTousCoups();
-        return coups.get((int) (Math.random()*(coups.size()-1)));
-    }
+     public abstract Coup getCoup(Partie p);
     
 }

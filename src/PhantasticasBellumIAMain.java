@@ -5,7 +5,7 @@ import Exception.ExceptionPersonnage;
 import Exception.ExceptionParamJeu;
 import GUI.Fenetre;
 import GUI.Vue3.VueJeuCombat;
-import IA.IA;
+import IA.*;
 import Model.Joueur;
 import Model.Personnage;
 import Model.Position;
@@ -22,16 +22,16 @@ import java.util.logging.Logger;
 /**
  * Classe de lancement d'une partie pour le module d'intelligence artificielle
  *
- * @author Gwénolé Lecorvé
+ * @author Gwï¿½nolï¿½ Lecorvï¿½
  */
 public class PhantasticasBellumIAMain {
 
     /**
-     * Fixe la composition et la position de l'équipe d'un joueur
+     * Fixe la composition et la position de l'ï¿½quipe d'un joueur
      *
-     * @param j Le joueur à initialiser
-     * @param p La partie qui va être jouée
-     * @param cote Côté du plateau où débutera le joueur
+     * @param j Le joueur ï¿½ initialiser
+     * @param p La partie qui va ï¿½tre jouï¿½e
+     * @param cote Cï¿½tï¿½ du plateau oï¿½ dï¿½butera le joueur
      */
     public static void initPersonnagesJoueur(Joueur j, Partie p, ControleurPlacement.coteJeu cote) throws ExceptionPersonnage {
         List<Personnage> all_characters = p.getPersonnagesDisponibles();
@@ -63,7 +63,7 @@ public class PhantasticasBellumIAMain {
     public static void main(String[] args) {
         // Initialise chaque joueur
         Joueur j1 = new Joueur("Joueur 1");
-        Joueur j2 = new IA();
+        Joueur j2 = new IAAleatoire();
         
         Fenetre fenetre = new Fenetre();
         Partie maPartie = new Partie(false, j1, j2);
