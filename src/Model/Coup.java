@@ -38,7 +38,7 @@ public class Coup {
     /**
      * Constructeur avec valeurs
      * @param auteur L'auteur du coup
-     * @param action L'action effectuee
+     * @param actions L'action effectuee
      */
     public Coup(Personnage auteur, List<Action> actions) {
         this.auteur = auteur;

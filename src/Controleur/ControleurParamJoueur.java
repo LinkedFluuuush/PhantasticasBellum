@@ -107,7 +107,7 @@ public class ControleurParamJoueur {
 	 * @return Partie
 	 */
 	public Partie getMaPartie() {
-		return getControleurParent().getMaPartie();
+		return getControleurParent().getPartie();
 	}
 
 	/**

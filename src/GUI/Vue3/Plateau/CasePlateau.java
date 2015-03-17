@@ -5,8 +5,7 @@ import java.awt.Color;
 import Model.Personnage;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,7 +38,7 @@ public class CasePlateau extends JPanel {
                 setLayout(new BorderLayout());
                 setBorder(BorderFactory.createLineBorder(null, 1));
                 
-                JPanel imagePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 2));
+                JPanel imagePanel = new JPanel(new GridBagLayout());
                 imagePanel.setOpaque(false);
                 add(imagePanel, BorderLayout.CENTER);
                 imageLabel = new JLabel();

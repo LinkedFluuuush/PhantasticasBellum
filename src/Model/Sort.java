@@ -172,6 +172,15 @@ public class Sort {
         public boolean peutAtteindre(Position origine, Position cible) {
             return getZone().getCasesAccessible(origine).contains(cible);
         }
+        
+        /**
+         * Renvoie une représentation textuelle du sort courant
+         * @return une chaine de carateres
+         */
+        @Override
+        public String toString() {
+            return getNom();
+        }
 
 	/**
 	 * Fixe l'effet produit par l'attaque

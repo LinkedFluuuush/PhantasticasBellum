@@ -144,23 +144,20 @@ public abstract class VuePlateau extends JImagePanel implements Observer{
 	 * Change la couleur des cases des Personnage, allie et ennemie
 	 */
 	public void enregistrerCouleurPersonnagesJoueur(){
-		for(Personnage o : getControleur().getMaPartie().listerEquipes()){
+		for(Personnage o : getControleur().getPartie().listerEquipes()){
 			Position oPos = o.getPosition();
 			Color oCouleur = null;
-			if (o.getProprio() == getJoueurActuel()){
-				if (o == getControleur().getMaPartie().getPersonnageActif()){
-					oCouleur = new Color(0, 0, 250);
-				}
-				else if (o.isDejaJoue()){
-					oCouleur = new Color(100, 200, 100);
-				} else {
-					oCouleur = new Color(0, 200, 0);
-				}
-			} else {
+                        if (o == getControleur().getPartie().getPersonnageActif()){
+                                oCouleur = new Color(0, 250, 0);
+                        }
+                        else {
+                                Color c = o.getProprio().getCouleur();
 				if (o.isDejaJoue()){
-					oCouleur = new Color(200, 100, 100);
+					oCouleur = new Color(Math.min(255, c.getRed()+120),
+                                                Math.min(255, c.getGreen()+120),
+                                                Math.min(255, c.getBlue()+120));
 				} else {
-					oCouleur = new Color(200, 0, 0);
+					oCouleur = c;
 				}
 			}
 			getMap()[oPos.getY()][oPos.getX()].setMaCouleur(oCouleur);
@@ -248,7 +245,7 @@ public abstract class VuePlateau extends JImagePanel implements Observer{
 	 */
 	public void afficherLabelCasePersonnages(){
             Position undefinedPosition = new Position();
-		for(Personnage o : getControleur().getMaPartie().listerEquipes()){
+		for(Personnage o : getControleur().getPartie().listerEquipes()){
 			if (!o.getPosition().equals(undefinedPosition)){
 				//Position Personnage defini
 				getCase(o.getPosition()).afficherPersonnage(o);

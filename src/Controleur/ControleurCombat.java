@@ -8,18 +8,11 @@ import javax.swing.JLabel;
 import GUI.Vue3.VueJeu;
 import GUI.Vue3.VueJeuCombat;
 import GUI.Vue3.Joueur.VueJoueurCombat;
-import IA.IA;
-import IA.IAThread;
 import Model.Sort;
 import Model.Effet;
 import Model.Matrice;
 import Model.Personnage;
 import Model.Position;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Classe controleur de combat (deroulement d'un tour de jeu)
@@ -44,7 +37,8 @@ public class ControleurCombat extends AbstractControleurJeu {
 	public ControleurCombat(VueJeu maVue, ControleurFenetre controleurParent){
 		super(maVue, controleurParent);
 		
-		getMaPartie().setEtatTourPasser();
+		getPartie().setEtatTourPasser();
+                getPartie().getJoueurActuel().getEquipe().clearPersonnageActif();
 	}
 	
 	/**
@@ -58,14 +52,14 @@ public class ControleurCombat extends AbstractControleurJeu {
 		}
 		
 		//Si le tous a demarre
-		if (getMaPartie().isDeplacementEnCours() || getMaPartie().isAttaqueEnCours()){
+		if (getPartie().isDeplacementEnCours() || getPartie().isAttaqueEnCours()){
 			//Verouille le choix des Personnage (le tour demarre)
-			((VueJoueurCombat) getMaVue().getPanelJoueurActuel()).verouillerChoixPersonnage();
+			((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixPersonnage();
 		}
 	
-		if (getMaPartie().isDeplacementEnCours() && deplacement){
+		if (getPartie().isDeplacementEnCours() && deplacement){
 			//si deplacement alors on se deplace
-			if (getMaPartie().setPositionPersonnage(
+			if (getPartie().setPositionPersonnage(
 					maPosition
 				)){
 				deplacement = false;
@@ -73,25 +67,25 @@ public class ControleurCombat extends AbstractControleurJeu {
 			
 			
 			//empecher le choix d'un autre deplacement
-			((VueJoueurCombat) getMaVue().getPanelJoueurActuel()).verouillerChoixDeplacement();
+			((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixDeplacement();
 			
 			//Reset couleur plateau
-			getMaVue().getPanelPlateau().afficherPlateauParDefaut();
+			getVue().getPanelPlateau().afficherPlateauParDefaut();
 			
-		} else if (getMaPartie().isAttaqueEnCours() && attaque){
+		} else if (getPartie().isAttaqueEnCours() && attaque){
 			//Sinon si attaque alors on attaque la case
 			
 			//Fixer les Personnage attaque par l'attaque en cours
 			List<Position> caseAccessible = getListCaseAttaqueZone(maPosition);
 			
 			for (Position maPos : caseAccessible){	
-				getMaPartie().setPersonnagesAttaques(
+				getPartie().setPersonnagesAttaques(
 						maPos,
 						getAttaqueActif()
 						);
 			}
 
-			((VueJoueurCombat) getMaVue().getPanelJoueurActuel()).verouillerChoixAttaque();
+			((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixAttaque();
 
 			//si attaque multiple
 			if (getAttaqueActif().isAttaqueMultiple()){
@@ -105,7 +99,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 			}
 			
 			//Applique l'attaque et recuperer le resultat
-			List<String> resultatAttaque = getMaPartie().lancerAttaque();
+			List<String> resultatAttaque = getPartie().lancerAttaque();
 			
 			//Met a jour la console
 			if (resultatAttaque.isEmpty()){
@@ -133,9 +127,9 @@ public class ControleurCombat extends AbstractControleurJeu {
 			return;
 		}
 		
-		if (getMaPartie().isDeplacementEnCours() && deplacement){
+		if (getPartie().isDeplacementEnCours() && deplacement){
 			afficherCaseDeplacementAutorise(maPosition);
-		} else if (getMaPartie().isAttaqueEnCours() && attaque){
+		} else if (getPartie().isAttaqueEnCours() && attaque){
 			afficherZoneAttaque(maPosition);
 		}
 	}
@@ -150,8 +144,8 @@ public class ControleurCombat extends AbstractControleurJeu {
 			return;
 		}
 		
-		if (getMaPartie().isDeplacementEnCours() || getMaPartie().isAttaqueEnCours()){
-			getMaVue().getPanelPlateau().afficherCouleurPlateau();
+		if (getPartie().isDeplacementEnCours() || getPartie().isAttaqueEnCours()){
+			getVue().getPanelPlateau().afficherCouleurPlateau();
 		}
 	}
 
@@ -160,16 +154,16 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 * @param monLabel element a afficher
 	 */
 	public void majConsole(JLabel monLabel){
-		getMaVue().majConsole(monLabel);
+		getVue().majConsole(monLabel);
 	}
 	
 	/**
 	 * Design pattern observateur/observe, ajoute l'observateur plateau sur les Personnage
 	 */
 	public void observePersonnages(){
-		for(Personnage o : getMaPartie().listerEquipes()){
+		for(Personnage o : getPartie().listerEquipes()){
 			o.addObserver(
-				getMaVue().getPanelPlateau()
+				getVue().getPanelPlateau()
 			);
 		}
 	}
@@ -185,61 +179,26 @@ public class ControleurCombat extends AbstractControleurJeu {
 		getPersonnageActif().effetsTourSuivant();
 		
 		//Fixe l'etat passif
-		getMaPartie().setEtatTourPasser();
+		getPartie().setEtatTourPasser();
 		
 		//Passe au tour suivant
 		getControleurParent().tourSuivant();
-                
-                //Demarre le coup suivant
-                coupSuivant();
 	}
         
-        
-        
-        
-        
-        /**
-         * Passe au coup suivant et joue ce coup pour les joueurs artificiels
-         */
-        public void coupSuivant() {
-            if (getMaPartie().getJoueurActuel() instanceof IA) {
-                ExecutorService executor = Executors.newSingleThreadExecutor();
-                IAThread calcul = new IAThread((IA) getMaPartie().getJoueurActuel(), getMaPartie(), executor);
-                executor.execute(calcul);
-                try {
-                    if (!executor.awaitTermination(4000, TimeUnit.MILLISECONDS))
-                    {
-                        executor.shutdownNow();
-                    }
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                System.out.println("Coup choisi = "+calcul.getCoupChoisi().toString());
-                getMaPartie().appliquerCoup(calcul.getCoupChoisi());
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ControleurCombat.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                getMaVue().revalidate();
-                passerSonTour();
-            }
-        }
-	
 	/**
 	 * Affiche la comme autorise
 	 * @param maPosition emplacement de la case concerne
 	 */
 	public void afficherCaseDeplacementAutorise(Position maPosition){
 		//Affichage temporaire, donc pas d'enregistrement et seulement un affichage
-		getMaVue().getPanelPlateau().caseCible(maPosition);
+		getVue().getPanelPlateau().caseCible(maPosition);
 	}
 	
 	/**
 	 * Affiche la portee du deplacement du Personnage actif
 	 */
 	public void afficherPorteeDeplacement(){
-		Personnage o = getMaPartie().getPersonnageActif();
+		Personnage o = getPartie().getPersonnageActif();
 		
 		Position positionPersonnage = o.getPosition();
 		Matrice mouvementPersonnage = o.getMouvement();
@@ -257,12 +216,12 @@ public class ControleurCombat extends AbstractControleurJeu {
 		List<Position> caseAccessible = mouvementPersonnage.getCasesAccessible(positionPersonnage);
 
 		List<Position> caseAccessibleDispo = new ArrayList();
-                List<Position> caseInaccessibleDispo = getMaPartie().getToutesPositions();
+                List<Position> caseInaccessibleDispo = getPartie().getToutesPositions();
                 caseInaccessibleDispo.removeAll(caseAccessible);
 		
 		//Enlever les cases occupés par les Personnage
 		for (Position maPosition : caseAccessible){
-			if (getMaPartie().isCaseLibre(maPosition)){
+			if (getPartie().isCaseLibre(maPosition)){
 				caseAccessibleDispo.add(maPosition);
 			}
 		}
@@ -272,18 +231,18 @@ public class ControleurCombat extends AbstractControleurJeu {
 		
 		for (Position maPosition : caseInaccessibleDispo){
 				//Enregistrer les cases
-				getMaVue().getPanelPlateau().caseNonCiblable(maPosition);
+				getVue().getPanelPlateau().caseNonCiblable(maPosition);
 		}
 		//Afficher les cases
-		getMaVue().getPanelPlateau().afficherCouleurPlateau();
+		getVue().getPanelPlateau().afficherCouleurPlateau();
 	}
 	
 	/**
 	 * Affiche la portee de l'attaque selectionne, du Personnage selectionne
 	 */
 	public void afficherPorteeAttaque(){
-		Personnage o = getMaPartie().getPersonnageActif();
-		Sort oA = getMaPartie().getAttaqueActif();
+		Personnage o = getPartie().getPersonnageActif();
+		Sort oA = getPartie().getAttaqueActif();
 		
 		Position positionPersonnage = o.getPosition();
 		int porteeMin = oA.getPorteeMin();
@@ -293,7 +252,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 			Matrice porteePersonnage = new Matrice(porteeMin, porteeMax, false);
 			
 			List<Position> caseAccessible = porteePersonnage.getCasesAccessible(positionPersonnage);
-                        List<Position> caseInaccessible = getMaPartie().getToutesPositions();
+                        List<Position> caseInaccessible = getPartie().getToutesPositions();
                         caseInaccessible.removeAll(caseAccessible);
 
 			//Sauvegarde des cases cliquables
@@ -301,23 +260,23 @@ public class ControleurCombat extends AbstractControleurJeu {
 			
 			for (Position maPosition : caseInaccessible){
 				//Enregistrer les cases
-				getMaVue().getPanelPlateau().caseNonCiblable(maPosition);
+				getVue().getPanelPlateau().caseNonCiblable(maPosition);
 			}
 		} else {
 			//Toute la map est attaquable
 			
 			//Sauvegarde des cases cliquables
-			for (int y = 0; y < getMaVue().getPanelPlateau().getHauteur(); y += 1){
-				for (int x = 0; x < getMaVue().getPanelPlateau().getHauteur(); x += 1){
+			for (int y = 0; y < getVue().getPanelPlateau().getHauteur(); y += 1){
+				for (int x = 0; x < getVue().getPanelPlateau().getHauteur(); x += 1){
 					this.caseClickable.add(new Position(x, y));
 				}
 			}
 			
 			//Enregistrer les cases
-			getMaVue().getPanelPlateau().toutesLesCasesCiblable();
+			getVue().getPanelPlateau().toutesLesCasesCiblable();
 		}
 		//Afficher les cases
-		getMaVue().getPanelPlateau().afficherCouleurPlateau();
+		getVue().getPanelPlateau().afficherCouleurPlateau();
 	}
 	
 	/**
@@ -329,7 +288,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 		
 		for (Position maPosition : caseAccessible){
 			//Affichage temporaire, donc pas d'enregistrement et seulement un affichage
-			getMaVue().getPanelPlateau().caseCible(maPosition);
+			getVue().getPanelPlateau().caseCible(maPosition);
 		}
 	}
 	
@@ -339,7 +298,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 * @return retourne la liste des cases touchables par la zone d'attaque
 	 */
 	public List<Position> getListCaseAttaqueZone(Position positionCase){
-		Sort oA = getMaPartie().getAttaqueActif();
+		Sort oA = getPartie().getAttaqueActif();
 		Matrice attaquePersonnage = oA.getZone();
 		
 		List<Position> caseAccessible = attaquePersonnage.getCasesAccessible(positionCase);
@@ -352,7 +311,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 * @return Personnage
 	 */
 	public Personnage getPersonnageActif(){
-		return getMaPartie().getPersonnageActif();
+		return getPartie().getPersonnageActif();
 	}
 
 	/**
@@ -360,7 +319,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 * @param o nouveau Personnage actif
 	 */
 	public void setAttaqueActif(Sort o){
-		getMaPartie().setAttaqueActif(o);
+		getPartie().setAttaqueActif(o);
 	}
 	
 	/**
@@ -368,7 +327,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 * @return Sort
 	 */
 	public Sort getAttaqueActif(){
-		return getMaPartie().getAttaqueActif();
+		return getPartie().getAttaqueActif();
 	}
 
 	/**
@@ -384,12 +343,12 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 * @return liste de Personnage
 	 */
 	public List<Personnage> getMonEquipe(){
-		return getMaPartie().listerEquipeJoueur();
+		return getPartie().listerEquipeJoueur();
 	}
 	
 	@Override
-	public VueJeuCombat getMaVue() {
-		return (VueJeuCombat) maVue;
+	public VueJeuCombat getVue() {
+		return (VueJeuCombat) vue;
 	}
 	
 	/**
@@ -397,21 +356,21 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 * @param o Personnage actif
 	 */
 	public void setPersonnageActif(Personnage o){
-		getMaPartie().setPersonnageActif(o);
+		getPartie().setPersonnageActif(o);
 		
-		getMaPartie().setEtatTourPasser();
-		getMaVue().getPanelPlateau().afficherPlateauParDefaut();
-		getMaVue().getPanelPlateau().enregistrerCouleurPersonnagesJoueur();
+		getPartie().setEtatTourPasser();
+		getVue().getPanelPlateau().afficherPlateauParDefaut();
+		getVue().getPanelPlateau().enregistrerCouleurPersonnagesJoueur();
 	}
 	
 	/**
 	 * Affiche les deplacements autorises sur la carte et fixe l'etat deplacement aupres du model
 	 */
 	public void setDeplacer() {
-		getMaPartie().setEtatTourDeplacer();
+		getPartie().setEtatTourDeplacer();
 		
 		//Reset couleur plateau
-		getMaVue().getPanelPlateau().afficherPlateauParDefaut();
+		getVue().getPanelPlateau().afficherPlateauParDefaut();
 		
 		//Afficher portee deplacement
 		afficherPorteeDeplacement();
@@ -423,10 +382,10 @@ public class ControleurCombat extends AbstractControleurJeu {
 	 */
 	public void setAttaquer(Sort monAttaque) {
 		setAttaqueActif(monAttaque);
-		getMaPartie().setEtatTourAttaquer();
+		getPartie().setEtatTourAttaquer();
 		
 		//Reset couleur plateau
-		getMaVue().getPanelPlateau().afficherPlateauParDefaut();
+		getVue().getPanelPlateau().afficherPlateauParDefaut();
 		
 		//Afficher portee attaque
 		afficherPorteeAttaque();

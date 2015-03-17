@@ -13,12 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import Controleur.ControleurFenetre;
-import Controleur.AbstractControleurJeu;
-import GUI.Vue3.VueJeu;
-import GUI.Vue3.Joueur.VueJoueur;
-import GUI.Vue3.Plateau.VuePlateau;
 import Model.Joueur;
-import Model.Personnage;
 
 /**
  * Vue qui etend JPanel et qui contient la vue de fin du jeu
@@ -71,7 +66,7 @@ class AlignementX extends JPanel{
 }
 
 /**
- * Class qui etend JPanel et qui contient tous ce que l'on veu afficher
+ * Class qui etend JPanel et qui contient tous ce que l'on veut afficher
  * @author Warlot/Gasquez
  *
  */
@@ -79,23 +74,33 @@ class Contenue extends JPanel{
 
 	/**
 	 * Constructeur
-	 * @param controleur controleur de la vue
+	 * @param controleur Controleur de la vue
 	 */
 	public Contenue(ControleurFenetre controleur){
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		Joueur joueurGagnant = null;
 		boolean unJoueurEstGagnant = false;
-		List<Joueur> tousLesJoueurs = controleur.getMaPartie().getJoueurs();
+		List<Joueur> tousLesJoueurs = controleur.getPartie().getJoueurs();
 		
-		if(controleur.getMaPartie().listerEquipes().isEmpty() != true) {
+		if(controleur.getPartie().listerEquipes().isEmpty() != true) {
 			unJoueurEstGagnant = true;
-			joueurGagnant = controleur.getMaPartie().listerEquipes().get(0).getProprio();
+			joueurGagnant = controleur.getPartie().listerEquipes().get(0).getProprio();
 		} else {
 			unJoueurEstGagnant = false;
 		}
 		
 		JButtonRetry jbuttonRetry = new JButtonRetry(controleur);
+                JButton jbuttonRetrySameTeam = new JButton("Recommencer avec les m\u00EAmes param\\u00E8tres");
+                jbuttonRetrySameTeam.addActionListener(
+                    new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            
+                        }
+                    }
+                );
 		JLabel jLabelAffichage = new JLabel("Fin du jeu");
 		JLabel jLabelEspace1 = new JLabel(" ");
 		JLabel jLabelEspace2 = new JLabel(" ");
@@ -104,8 +109,8 @@ class Contenue extends JPanel{
 		JLabel jLabelJoueurGagnant = new JLabel("test");
 		JLabel jLabelScoreJ1= new JLabel(tousLesJoueurs.get(0).getNom() +" : "+ tousLesJoueurs.get(0).getNombreVictoire());
 		JLabel jLabelScoreJ2= new JLabel(tousLesJoueurs.get(1).getNom() +" : "+ tousLesJoueurs.get(1).getNombreVictoire());
-		if(unJoueurEstGagnant == false){jLabelJoueurGagnant = new JLabel("Personne n'a gagne, essayez encore !");} else{
-			jLabelJoueurGagnant = new JLabel("Bravo a "+ joueurGagnant.getNom()+" d'avoir gagné !");
+		if(unJoueurEstGagnant == false){jLabelJoueurGagnant = new JLabel("Personne n'a gagn\u00E9, essayez encore !");} else{
+			jLabelJoueurGagnant = new JLabel("Bravo a "+ joueurGagnant.getNom()+" d'avoir gagn\u00E9 !");
 		}
 		
 		add(jLabelAffichage);

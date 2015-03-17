@@ -3,6 +3,7 @@ package Model;
 import java.util.List;
 
 import Exception.ExceptionPersonnage;
+import java.awt.Color;
 /**
  * 
  * La classe Joueur represente virtuellement le participant, chaque joueur est caracterise par son nom et son equipe
@@ -17,7 +18,16 @@ public class Joueur {
 	private static int value = 1;
 	private String nom = "Non defini";
 	private Equipe equipe = null;
-	private int nombreVictoire = 0; 
+	private int nombreVictoire = 0;
+        private Color couleur;
+        
+        private static final Color couleurs[] = {new Color(0, 100, 255), Color.RED, Color.MAGENTA, Color.ORANGE};
+        private static int couleurIterateur = -1;
+        
+        private static Color getCouleurSuivante() {
+            couleurIterateur = (couleurIterateur + 1) % couleurs.length;
+            return couleurs[couleurIterateur];
+        }
 	
 	/******************CONSTRUCTEUR******************/
 	/**
@@ -27,7 +37,20 @@ public class Joueur {
 	public Joueur(String nom){
 		setEquipe(new Equipe());
 		setNom(nom);
+                couleur = getCouleurSuivante();
 	}
+        
+        /**
+         * Clone en profondeur l'objet courant
+         * @return un nouveau joueur
+         */
+        public Joueur clone() {
+            Joueur clone = new Joueur(this.nom);
+            clone.equipe = (Equipe) this.equipe.clone();
+            clone.nombreVictoire = this.nombreVictoire;
+            clone.couleur = this.couleur;
+            return clone;
+        }
 
 	/**
 	 * Instancie une nouvelle equipe
@@ -96,7 +119,7 @@ public class Joueur {
 	/**
 	 * Incremente le nombre de victoire
 	 */
-	public void gagnee() {
+	public void signifierVictoire() {
 		nombreVictoire += 1;
 	}
 	
@@ -176,6 +199,13 @@ public class Joueur {
 	public Equipe getEquipe() {
 		return equipe;
 	}
+        
+        /**
+         * Teste si le joueur courant a perdu la partie courante
+         */
+        public boolean estBattu() {
+            return equipe.estBattue();
+        }
 	
 	/**
 	 * Retourne le nombre de victoire
@@ -212,4 +242,11 @@ public class Joueur {
 	public void setNombreVictoire(int nombreVictoire){
 		this.nombreVictoire = nombreVictoire;
 	}
+
+    /**
+     * @return the couleur
+     */
+    public Color getCouleur() {
+        return couleur;
+    }
 }

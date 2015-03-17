@@ -20,10 +20,8 @@ public class LayeredPanePersonnage extends JLayeredPane{
 	private ControleurParamJoueur controleur = null;
 	private Personnage personnage = null;
 	
-	private int PersonnageImageWidth = 120;
 	private int PersonnageImageHeight = 150;
 	private int PersonnageNameHeight = 20;
-	private int LayeredPanePersonnageWidth = 120;
 	private int LayeredPanePersonnageHeight = PersonnageNameHeight + PersonnageImageHeight;
 	
 	/**
@@ -36,16 +34,16 @@ public class LayeredPanePersonnage extends JLayeredPane{
 		this.controleur = controleur;
 		
 		setLayout(null);
-		setPreferredSize(new Dimension(LayeredPanePersonnageWidth, LayeredPanePersonnageHeight));
+		setPreferredSize(new Dimension(monPersonnage.getImage().getIconWidth(), LayeredPanePersonnageHeight));
 		setPersonnage(monPersonnage);
 		
 		JLabel labelNom = new JLabel();
-		labelNom.setBounds(0, 0, LayeredPanePersonnageWidth, PersonnageNameHeight);
+		labelNom.setBounds(0, 0, monPersonnage.getImage().getIconWidth(), PersonnageNameHeight);
 		labelNom.setText(monPersonnage.getClasse());
 		labelNom.setHorizontalAlignment(JLabel.CENTER);
 
 		JLabel labelImage = new JLabel(monPersonnage.getImage());
-		labelImage.setBounds(0, PersonnageNameHeight, PersonnageImageWidth, PersonnageImageHeight);
+		labelImage.setBounds(0, PersonnageNameHeight, monPersonnage.getImage().getIconWidth(), PersonnageImageHeight);
 		
 		add(labelNom, new Integer(0), 0);
 		add(labelImage, new Integer(0), 0);

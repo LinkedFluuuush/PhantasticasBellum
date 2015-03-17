@@ -8,7 +8,7 @@ import GUI.Vue3.VueJeu;
  */
 
 public abstract class AbstractControleurJeu {
-	protected VueJeu maVue;
+	protected VueJeu vue;
 	private ControleurFenetre controleurParent = null;
 	
 	/**
@@ -17,7 +17,7 @@ public abstract class AbstractControleurJeu {
 	 * @param controleurParent controleur parent
 	 */
 	public AbstractControleurJeu(VueJeu maVue, ControleurFenetre controleurParent){
-		this.maVue = maVue;
+		this.vue = maVue;
 		this.controleurParent = controleurParent;
 	}
 
@@ -25,8 +25,8 @@ public abstract class AbstractControleurJeu {
 	 * Affiche les Personnages sur le plateau et change leur couleur
 	 */
 	public void afficherPersonnages(){
-		getMaVue().getPanelPlateau().afficherPlateauParDefaut();
-		getMaVue().getPanelPlateau().enregistrerCouleurPersonnagesJoueur();
+		getVue().getPanelPlateau().afficherPlateauParDefaut();
+		getVue().getPanelPlateau().enregistrerCouleurPersonnagesJoueur();
 	}
 
 	/**
@@ -41,13 +41,13 @@ public abstract class AbstractControleurJeu {
 	 * Retourne la specialisation de VueJeu
 	 * @return VueJeu
 	 */
-	public abstract VueJeu getMaVue();
+	public abstract VueJeu getVue();
 
 	/**
 	 * Methode abstraite qui renverra la vue courrante
 	 * @return la vue courante
 	 */
-	public Partie getMaPartie() {
-		return controleurParent.getMaPartie();
+	public Partie getPartie() {
+		return controleurParent.getPartie();
 	}
 }

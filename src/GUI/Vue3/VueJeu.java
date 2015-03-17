@@ -17,6 +17,9 @@ import Controleur.*;
 import GUI.Vue3.Joueur.VueJoueur;
 import GUI.Vue3.Plateau.VuePlateau;
 import Model.*;
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 /**
  * 
@@ -27,8 +30,8 @@ import Model.*;
 public abstract class VueJeu extends JPanel{
 	protected AbstractControleurJeu controleur = null;
 	private Joueur joueurActuel = null;
-	
-	private JPanel panelOuest = new JPanel();
+        
+        private JPanel panelOuest = new JPanel();
 	private JPanel panelEst = new JPanel();
 	private JPanel panelCentre = new JPanel();
 	private JPanel panelSud = new JPanel();
@@ -49,7 +52,17 @@ public abstract class VueJeu extends JPanel{
 		setControleur(controleurParent);
 		
 		setLayout(new BorderLayout(0, 0));
-		
+                
+                Joueur j1 = listJoueurs.get(0);
+                Joueur j2 = listJoueurs.get(1);
+                
+                TitledBorder bordureOuest = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(j1.getCouleur(), 2), "Joueur : " + j1.getNom());
+                bordureOuest.setTitleJustification(TitledBorder.CENTER);
+                TitledBorder bordureEst = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(j2.getCouleur(), 2), "Joueur : " + j2.getNom());
+                bordureEst.setTitleJustification(TitledBorder.CENTER);
+                panelOuest.setBorder(bordureOuest);
+                panelEst.setBorder(bordureEst);
+                
 		panelOuest.setLayout(new BoxLayout(panelOuest, BoxLayout.Y_AXIS));
 		panelEst.setLayout(new BoxLayout(panelEst, BoxLayout.Y_AXIS));
 		panelCentre.setLayout(new GridLayout());
@@ -59,9 +72,6 @@ public abstract class VueJeu extends JPanel{
 		add(panelCentre, BorderLayout.CENTER);
 		add(panelEst, BorderLayout.EAST);
 		add(panelSud, BorderLayout.SOUTH);
-		
-		panelOuest.add(new JLabel("Joueur : " + listJoueurs.get(0).getNom()));
-		panelEst.add(new JLabel("Joueur : " + listJoueurs.get(1).getNom()));
 		
 		panelCentre.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -140,12 +150,16 @@ public abstract class VueJeu extends JPanel{
 	 */
 	private void majDimension() {
 		panelOuest.setPreferredSize(new Dimension(
-				(int) (controleur.getControleurParent().getMaVue().getWidth() * 0.25), 
-				(int) (controleur.getControleurParent().getMaVue().getHeight() * 0.25))
+				(int) (controleur.getControleurParent().getVue().getWidth() * 0.25), 
+				(int) (controleur.getControleurParent().getVue().getHeight() * 0.25))
 		);
 		panelEst.setPreferredSize(new Dimension(
-				(int) (controleur.getControleurParent().getMaVue().getWidth() * 0.25), 
-				(int) (controleur.getControleurParent().getMaVue().getHeight() * 0.25))
+				(int) (controleur.getControleurParent().getVue().getWidth() * 0.25), 
+				(int) (controleur.getControleurParent().getVue().getHeight() * 0.25))
+		);
+                panelCentre.setPreferredSize(new Dimension(
+				(int) (controleur.getControleurParent().getPartie().getPlateauLargeur()*100), 
+				(int) (controleur.getControleurParent().getPartie().getPlateauHauteur()*100))
 		);
 	}
 	

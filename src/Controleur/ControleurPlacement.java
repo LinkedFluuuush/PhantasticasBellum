@@ -32,9 +32,9 @@ public class ControleurPlacement extends AbstractControleurJeu{
 	 */
 	public void invalideCotePlateau(){
 		if (ControleurPlacement.coteJeuChoisi == coteJeu.GAUCHE){
-			getMaVue().getPanelPlateau().disableMoitieGaucheMap();
+			getVue().getPanelPlateau().disableMoitieGaucheMap();
 		} else if(ControleurPlacement.coteJeuChoisi == coteJeu.DROIT){
-			getMaVue().getPanelPlateau().disableMoitieDroiteMap();
+			getVue().getPanelPlateau().disableMoitieDroiteMap();
 		}
 	}
 
@@ -43,7 +43,7 @@ public class ControleurPlacement extends AbstractControleurJeu{
 	 * @param o Personnage selectionner
 	 */
 	public void selectionnerPersonnage(Personnage o){
-		getMaPartie().setPersonnageActif(o);
+		getPartie().setPersonnageActif(o);
 	}
 
 	/**
@@ -52,28 +52,28 @@ public class ControleurPlacement extends AbstractControleurJeu{
 	 */
 	public void placerPersonnage(Position maPosition){
 		//Si aucun Personnage selectionne alors on ne fait rien
-		if (getMaPartie().getPersonnageActif() == null) return;
+		if (getPartie().getPersonnageActif() == null) return;
 
 		//Affecter la position au Personnage actuel
-		if (getMaPartie().setPositionPersonnage(maPosition) == false){
+		if (getPartie().setPositionPersonnage(maPosition) == false){
 			return;
 		}
 		
 		//Si premier placement
 		if (ControleurPlacement.coteJeuChoisi == coteJeu.AUCUN){
 			//On invalde l'autre moitie du plateau
-			if (maPosition.getX() >= getMaVue().getPanelPlateau().getLargeur() / 2){
+			if (maPosition.getX() >= getVue().getPanelPlateau().getLargeur() / 2){
 				ControleurPlacement.coteJeuChoisi = coteJeu.DROIT;
-				getMaVue().getPanelPlateau().disableMoitieGaucheMap();
+				getVue().getPanelPlateau().disableMoitieGaucheMap();
 			} else {
 				ControleurPlacement.coteJeuChoisi = coteJeu.GAUCHE;
-				getMaVue().getPanelPlateau().disableMoitieDroiteMap();
+				getVue().getPanelPlateau().disableMoitieDroiteMap();
 			}
 		}
 		
-		VueJoueurPlacement panelJoueurActuel = getMaVue().getPanelJoueurActuel();
+		VueJoueurPlacement panelJoueurActuel = getVue().getPanelJoueurActuel();
 		
-		Position oldPosition = getMaPartie().getPersonnageActif().getPosition();
+		Position oldPosition = getPartie().getPersonnageActif().getPosition();
 		
 		if (oldPosition.equals(new Position())){
 			//Si position non initialise (vide)
@@ -85,12 +85,12 @@ public class ControleurPlacement extends AbstractControleurJeu{
 		}
 
 		panelJoueurActuel.indiquerPersonnagePlace(
-				getMaPartie().getPersonnageActif()
+				getPartie().getPersonnageActif()
 				);
 
-		getMaVue().getPanelPlateau().getCase(maPosition).afficherPersonnage(getMaPartie().getPersonnageActif());
-		getMaVue().getPanelPlateau().afficherLabelCaseDefaut();
-		getMaVue().getPanelPlateau().afficherCouleurPlateau();
+		getVue().getPanelPlateau().getCase(maPosition).afficherPersonnage(getPartie().getPersonnageActif());
+		getVue().getPanelPlateau().afficherLabelCaseDefaut();
+		getVue().getPanelPlateau().afficherCouleurPlateau();
 	}
 	
 	/**
@@ -103,8 +103,8 @@ public class ControleurPlacement extends AbstractControleurJeu{
 	/**
 	 * Renvoie la vue courante
 	 */
-	public VueJeuPlacement getMaVue(){
-		return (VueJeuPlacement) maVue;
+	public VueJeuPlacement getVue(){
+		return (VueJeuPlacement) vue;
 	}
 
 	/**

@@ -15,7 +15,10 @@ import Model.Sort;
 import Model.Joueur;
 import Model.Personnage;
 import Model.Personnage.creatureType;
+import java.awt.Color;
+import javax.swing.BorderFactory;
 import javax.swing.JSeparator;
+import javax.swing.border.Border;
 
 /**
  * 
@@ -38,7 +41,7 @@ public class VueJoueurCombat extends VueJoueur {
 	 */
 	public VueJoueurCombat(ControleurCombat controleur, Joueur monJoueur){
 		super(controleur, monJoueur);
-		
+                
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		panelPersonnageNom = new PanelPersonnageNom(this);
@@ -60,7 +63,7 @@ public class VueJoueurCombat extends VueJoueur {
 	 * Verrouille un Personnage
 	 */
 	public void verouillerChoixPersonnage(){
-		if (personnageLock == true) return;
+		if (personnageLock) return;
 		
 		personnageLock = true;
 		panelPersonnageNom.verouillerChoixPersonnage();
@@ -167,6 +170,9 @@ class PanelPersonnageNom extends JPanel{
 			if (o.isDejaJoue()){
 				radio.setEnabled(false);
 			}
+                        else if (parent.getControleur().getPersonnageActif() == o) {
+                                radio.setSelected(true);
+                        }
 			
 			radio.addActionListener(new ActionListener() {
 				@Override
@@ -473,7 +479,7 @@ class PanelActionsCaracteristique extends JPanel{
 		this.getLabelType().setText("Elle ciblera les creatures de type : "+attack.getTypeCibleToString() + ".");
 		
 		String creatureAttaquable = "Exemple : ";
-		for(Personnage o : parent.getControleur().getControleurParent().getMaPartie().getPersonnagesDisponibles()){
+		for(Personnage o : parent.getControleur().getControleurParent().getPartie().getPersonnagesDisponibles()){
 			if (attack.getTypeCible() ==  creatureType.TOUT || o.getType() == attack.getTypeCible()){
 				creatureAttaquable += o.getClasse() + " ";
 			}

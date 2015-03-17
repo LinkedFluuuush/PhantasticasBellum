@@ -5,17 +5,10 @@ import Controleur.ControleurPlacement.coteJeu;
 import Exception.ExceptionPersonnage;
 import Exception.ExceptionParamJeu;
 import GUI.Fenetre;
-import IA.IA;
-import IA.IAThread;
 
 import java.util.*;
 
 import Personnages.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * La classe Partie est le controleur du systeme, elle est le pivot etre le model et la vue
@@ -25,12 +18,15 @@ import java.util.logging.Logger;
 
 public class Partie {
         /******************DELAI******************/
+    
         private static final int DELAY = 4;
+        
 	/******************ATTRIBUT******************/
+        
 	/**
 	 * Collection Personnage disponible lors de la selection des equipes
 	 */
-	private List<Personnage> PersonnagesDisponibles = new ArrayList<Personnage>();
+	private static List<Personnage> personnagesDisponibles = new ArrayList<Personnage>();
 	
 	/**
 	 * Taille des equipes
@@ -74,7 +70,7 @@ public class Partie {
         /**
 	 * Constructeur de la classe Partie
 	 */
-	public Partie(boolean creerFenetre, Joueur j1, Joueur j2){
+	public Partie(boolean creerFenetre, Joueur j1, Joueur j2) {
                 if (creerFenetre) {
                     new Fenetre(this);
                 }
@@ -88,6 +84,37 @@ public class Partie {
                 joueurSuivant();
                 joueurSuivant();
 	}
+        
+        /**
+         * Clone la partie courante
+         * @return une nouvelle partie
+         */
+        public Partie clone() {
+            Partie clone = new Partie(false, null, null);
+            
+            clone.tailleEquipe = this.tailleEquipe;
+            clone.plateauHauteur = this.plateauHauteur;
+            clone.plateauLargeur = this.plateauLargeur;
+                    
+            int n = joueurs.size();
+            boolean found_current_player = false;
+            clone.joueurIterateur = clone.joueurs.iterator();
+
+            for (int i = 0; i < Math.min(n, 2); i++) {
+                Joueur j_clone = (Joueur) this.joueurs.get(i).clone();
+                clone.joueurs.set(i, j_clone);
+                // Verifier si on est sur le joueur courant
+                if (joueurActuel == this.joueurs.get(i)) {
+                    clone.joueurActuel = j_clone;
+                    found_current_player = true;
+                }
+                // Avancer l'iterateur si le joueur courant n'a pas encore ete atteint
+                if (!found_current_player) {
+                    clone.joueurIterateur.next();
+                }
+            }
+            return clone;
+        }
 	
 	
 	/******************INITIALISATION******************/
@@ -122,6 +149,7 @@ public class Partie {
 	 * Initialisation des Personnage disponible dans le jeu
 	 */
 	private void initPersonnagesDisponibles(){
+                getPersonnagesDisponibles().clear();
 		getPersonnagesDisponibles().add(new Magicien());
 		getPersonnagesDisponibles().add(new Guerrier());
 		getPersonnagesDisponibles().add(new Voleur());
@@ -254,8 +282,8 @@ public class Partie {
          * @return vrai si la case est valide, faux sinon
          */
         public boolean isCaseValide(Position position) {
-            return position.getY() > 0 && position.getY() < getPlateauHauteur()
-                    && position.getX() > 0 && position.getX() < getPlateauLargeur();
+            return position.getY() >= 0 && position.getY() < getPlateauHauteur()
+                    && position.getX() >= 0 && position.getX() < getPlateauLargeur();
         }
 	
 	public List<String> lancerAttaque(){
@@ -267,10 +295,21 @@ public class Partie {
          * @param coup Le coup a appliquer
          */
         public void appliquerCoup(Coup coup) {
+            //Selectionner le personnage qui joue le coup
             setPersonnageActif(coup.getAuteur());
+            
+            //Appliquer toutes les actions du coup
             for (Action a : coup.getActions()) {
                 a.appliquer(this);
             }
+            
+            //Indique que ce Personnage a deja joue
+            getPersonnageActif().setDejaJoue(true);
+            
+            //Decremente de 1 tour les effets de tous les Personnage
+            getPersonnageActif().effetsTourSuivant();
+            
+            //Fixe l'etat passif
             setEtatTourPasser();
         }
 	
@@ -296,7 +335,7 @@ public class Partie {
 	}
 	
 	public List<Personnage> getPersonnagesDisponibles() {
-		return PersonnagesDisponibles;
+		return personnagesDisponibles;
 	}
 	public int getTailleEquipe() {
 		return tailleEquipe;
@@ -325,10 +364,13 @@ public class Partie {
          * Retourne tous les coups possibles pour le joueur actif
          * @return une liste de coups
          */
-        public List<Coup> getTousCoups() {
+        public synchronized List<Coup> getTousCoups() {
             List<Coup> tousCoups = new ArrayList();
+//            System.out.println(Thread.currentThread().getName()+": "+"Equipe courante = " + getJoueurActuel().getEquipe().toString());
             for (Personnage pf : getJoueurActuel().listerEquipe()) {
+//                System.out.println("Coup de " + pf.toString());
                 if (pf.estVivant() && !pf.isDejaJoue()) {
+//                    System.out.println("OK");
                     tousCoups.addAll(getTousCoupsPersonnage(pf));
                 }
             }
@@ -343,9 +385,12 @@ public class Partie {
         public List<Coup> getTousCoupsPersonnage(Personnage pf) {
             List<Coup> coups = new ArrayList();
             // Deplacements seuls
+            coups.add(new Coup(pf, new ArrayList()));
             List<Deplacement> deplacementsTheoriques = pf.getDeplacements();
             List<Deplacement> deplacementsVerifies = new ArrayList();
             for (Deplacement d : deplacementsTheoriques) {
+//                System.out.println("Déplacement theorique = " + d.toString());
+//                System.out.println("-> " + (isCaseValide(d.getDestination())?"valide":"pas valide") + " && " + (isCaseLibre(d.getDestination())?"libre":"pas libre"));
                 if (isCaseValide(d.getDestination()) && isCaseLibre(d.getDestination())) {
                     deplacementsVerifies.add(d);
                     coups.add(new Coup(pf, d));
@@ -354,9 +399,9 @@ public class Partie {
             // Attaques seules
             for (Sort sort : pf.getAttaques()) {
                 List<Position> cibles = sort.getZone().getCasesAccessible(pf.getPosition());
-                for (Personnage adv : listerEquipesAdverses()) {
-                    if (cibles.contains(adv.getPosition())) {
-                        coups.add(new Coup(pf, new Attaque(sort, adv)));
+                for (Personnage cible : listerEquipes()) {
+                    if (cibles.contains(cible.getPosition())) {
+                        coups.add(new Coup(pf, new Attaque(sort, cible)));
                     }
                 }
             }
@@ -376,11 +421,21 @@ public class Partie {
 		return joueurIterateur;
 	}
 
-
-	public void partieGagnee(Joueur joueurGagnant) {
-		joueurGagnant.gagnee();
+	public void signifierVictoire(Joueur joueurGagnant) {
+		joueurGagnant.signifierVictoire();
 		
 	}
+        
+        /**
+         * Teste si la partie courante est terminee
+         * @return Vrai si la partie est terminee, faux sinon
+         */
+        public boolean estTerminee() {
+            for (Joueur j : joueurs) {
+                if (j.estBattu()) { return true; }
+            }
+            return false;
+        }
 	
 	/****************** SETTERS ******************/
 	/**
@@ -452,7 +507,7 @@ public class Partie {
 	
 	/******************PRIVATE SETTERS******************/
 	private void setPersonnagesDisponibles(List<Personnage> personnagesDisponible) {
-		PersonnagesDisponibles = personnagesDisponible;
+		personnagesDisponibles = personnagesDisponible;
 	}
 	private void setTailleEquipe(int tailleEquipe) {
 		this.tailleEquipe = tailleEquipe;

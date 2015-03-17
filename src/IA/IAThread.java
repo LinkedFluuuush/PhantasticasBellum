@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package IA;
 
 import Controleur.Partie;
@@ -62,15 +57,15 @@ public class IAThread extends Thread {
     public void run() {
         try {
             coupChoisi = ia.getCoup(partie);
+            System.out.println(Thread.currentThread().getName()+": "+"Coup memorise");
         }
-        catch (Exception ex) { /* Rien */ }
+        catch (Exception ex) {
+            Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(Thread.currentThread().getName()+": "+"Interrompu");
+        }
         finally {
             executor.shutdown();
-        }
-        try {
-            sleep(100);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(IAThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(Thread.currentThread().getName()+": "+"Fin de l'executor");
         }
     }
 

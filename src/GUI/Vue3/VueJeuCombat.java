@@ -78,8 +78,8 @@ public class VueJeuCombat extends VueJeu {
 	 */
 	private void majDimension(){
 		getPanelSud().setPreferredSize(new Dimension(
-				(int) (getControleur().getControleurParent().getMaVue().getWidth() * 0.75),
-				(int) (getControleur().getControleurParent().getMaVue().getHeight() * 0.20))
+				(int) (getControleur().getControleurParent().getVue().getWidth() * 0.75),
+				(int) (getControleur().getControleurParent().getVue().getHeight() * 0.20))
 				);
 	}
 	

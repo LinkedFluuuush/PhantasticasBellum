@@ -10,6 +10,7 @@ import GUI.Vue3.VueJeuCombat;
 import GUI.Vue3.VueJeuPlacement;
 import GUI.Vue4.VueFinJeu;
 import IA.IA;
+import IA.IAAleatoire;
 import IA.IAThread;
 import Model.*;
 import java.util.concurrent.ExecutorService;
@@ -24,8 +25,11 @@ import java.util.logging.Logger;
  *
  */
 
-public class ControleurFenetre{
-	private Fenetre maVue = null;
+public class ControleurFenetre {
+    
+	private Fenetre vue = null;
+
+        private Partie configurationInitiale = null;
 
 	//Totalise le nombre de joueurs configures au total
 	private static int nbJoueurConfigurer = 0;
@@ -35,14 +39,14 @@ public class ControleurFenetre{
 	 * @param frameVue fenetre principale de l'application
 	 */
 	public ControleurFenetre(Fenetre frameVue){
-		this.maVue = frameVue;
+		this.vue = frameVue;
 	}
 	
 	/**
 	 * Initialiase le contenu de la fenetre sur la premiere vue
 	 */
 	public void initVue(){
-		getMaVue().naviguer(
+		getVue().naviguer(
 				new VueParamJeu(this)
 				);
 	}
@@ -57,24 +61,24 @@ public class ControleurFenetre{
 	 */
 	public void continueParamJeu(int tailleEquipe, int longueurPlateau, int largeurPlateau, String nomJoueur1, String nomJoueur2){
 		try {
-			getMaPartie().setTailleEquipePlateau(tailleEquipe, longueurPlateau, largeurPlateau);
+			getPartie().setTailleEquipePlateau(tailleEquipe, longueurPlateau, largeurPlateau);
 		} catch (ExceptionParamJeu e) {
 			e.printStackTrace();
 			return;
 		}
 
 		//Assigne un nom au joueur
-		getMaPartie().getJoueurs().get(0).setNom(nomJoueur1);
-		getMaPartie().getJoueurs().get(1).setNom(nomJoueur2);
+		getPartie().getJoueurs().get(0).setNom(nomJoueur1);
+		getPartie().getJoueurs().get(1).setNom(nomJoueur2);
 		
 		//Initialise le nombre de joueur deja configure
 		ControleurFenetre.nbJoueurConfigurer = 0;
 		
 		//Change le contenu de la fenetre principale
-		getMaVue().naviguer(
+		getVue().naviguer(
 				new VueParamJoueur(
 						this,
-						getMaPartie().getNomJoueur()
+						getPartie().getNomJoueur()
 					)
 				);
 	}
@@ -88,7 +92,7 @@ public class ControleurFenetre{
 		err = false;
 		
 		int tailleEquipe = collectionPersonnagesJoueur.size();
-		int tailleEquipeTotal = getMaPartie().getTailleEquipe();
+		int tailleEquipeTotal = getPartie().getTailleEquipe();
 
 		//Test equipe compete ou non
 		if (tailleEquipeTotal != tailleEquipe) {
@@ -98,32 +102,32 @@ public class ControleurFenetre{
 
 		//Sauvegarde Personnage joueurActuel
 		for(Personnage o : collectionPersonnagesJoueur){
-			getMaPartie().ajouterPersonnageJoueur(o);
+			getPartie().ajouterPersonnageJoueur(o);
 		}
 		
 		//Joueur suivant
 		ControleurFenetre.nbJoueurConfigurer += 1;
-		getMaPartie().joueurSuivant();
+		getPartie().joueurSuivant();
 		
 		//si tous les joueurs sont parametres, on passe a l'etape de placement
-		if (getMaPartie().getNbJoueurs() == ControleurFenetre.nbJoueurConfigurer){
+		if (getPartie().getNbJoueurs() == ControleurFenetre.nbJoueurConfigurer){
 			ControleurFenetre.nbJoueurConfigurer = 0;
 			
 			//Placer Personnage
-			getMaVue().naviguer(new VueJeuPlacement(
+			getVue().naviguer(new VueJeuPlacement(
 							this,
-							getMaPartie().getPlateauHauteur(),
-							getMaPartie().getPlateauLargeur(),
-							getMaPartie().getJoueurs(),
-							getMaPartie().getJoueurActuel()
+							getPartie().getPlateauHauteur(),
+							getPartie().getPlateauLargeur(),
+							getPartie().getJoueurs(),
+							getPartie().getJoueurActuel()
 						)
 					);
 		} else {
 			//sinon on parametre le joueur suivant
-			getMaVue().naviguer(
+			getVue().naviguer(
 					new VueParamJoueur(
 							this,
-							getMaPartie().getNomJoueur()
+							getPartie().getNomJoueur()
 						)
 					);
 		}
@@ -134,54 +138,61 @@ public class ControleurFenetre{
 	 */
 	public void continueGeneralJeu(){
 		try {
-			getMaPartie().personnagesTousPlaces();
+			getPartie().personnagesTousPlaces();
 		} catch (ExceptionPersonnage e) {
 			e.printStackTrace();
 			return;
 		}
 
 		//Joueur suivant
-		getMaPartie().joueurSuivant();
+		getPartie().joueurSuivant();
 		ControleurFenetre.nbJoueurConfigurer += 1;
 		
 		//Si tous les joueurs ont place leurs Personnage
-		if (getMaPartie().getNbJoueurs() == ControleurFenetre.nbJoueurConfigurer){
-			getMaVue().naviguer(new VueJeuCombat(
+		if (getPartie().getNbJoueurs() == ControleurFenetre.nbJoueurConfigurer){
+			getVue().naviguer(new VueJeuCombat(
 							this,
-							getMaPartie().getPlateauHauteur(),
-							getMaPartie().getPlateauLargeur(),
-							getMaPartie().getJoueurs(),
-							getMaPartie().getJoueurActuel()
+							getPartie().getPlateauHauteur(),
+							getPartie().getPlateauLargeur(),
+							getPartie().getJoueurs(),
+							getPartie().getJoueurActuel()
 						)
 					);
+                        if (getPartie().getJoueurActuel() instanceof IA) {
+                            coupSuivant();
+                            tourSuivant();
+                        }
 		} else {
 			//sinon on parametre le joueur suivant
-			getMaVue().naviguer(new VueJeuPlacement(
+			getVue().naviguer(new VueJeuPlacement(
 							this,
-							getMaPartie().getPlateauHauteur(),
-							getMaPartie().getPlateauLargeur(),
-							getMaPartie().getJoueurs(),
-							getMaPartie().getJoueurActuel()
+							getPartie().getPlateauHauteur(),
+							getPartie().getPlateauLargeur(),
+							getPartie().getJoueurs(),
+							getPartie().getJoueurActuel()
 						)
 					);
+                        setConfigurationInitiale(getPartie().clone());
 		}
                 
-                maVue.pack();
+                vue.pack();
 	}
 	
 	/**
 	 *  Change le contenu de la fenetre vers la classe du deroulement d'un tour de jeu si le jeu n'est pas termine
 	 */
 	public void tourSuivant(){
+            // Enchainer les tours tant que le joueur suivant est un joueur artificiel
+            do {
 		//Recupere tous les personnages qui sont encore en jeu
-		List<Personnage> tousLesPersonnages = getMaPartie().listerEquipes();
+		List<Personnage> tousLesPersonnages = getPartie().listerEquipes();
 		boolean encoreDeuxAdversaire = false;
 		//On regarde si il y a un personnage qui a un joueur different du premier personnage
-		if (getMaPartie().listerEquipes().isEmpty()){
+		if (getPartie().listerEquipes().isEmpty()){
 			encoreDeuxAdversaire = false;
 		}else{
 			//Si les deux joueurs sont encore sur le plateau
-			for (Personnage o : getMaPartie().listerEquipes()){
+			for (Personnage o : getPartie().listerEquipes()){
 				if(o.getProprio() != tousLesPersonnages.get(0).getProprio()){
 					encoreDeuxAdversaire = true;
 					break;
@@ -190,22 +201,22 @@ public class ControleurFenetre{
 		}
 		
 		//Test si il n'y a plus qu'un joueur
-		if(encoreDeuxAdversaire == false){
+		if(!encoreDeuxAdversaire){
 			//Si il y a un gagnant, alors on le notify
-			if(getMaPartie().listerEquipes().isEmpty() == false){
-				getMaPartie().partieGagnee(tousLesPersonnages.get(0).getProprio());
+			if(getPartie().listerEquipes().isEmpty() == false){
+				getPartie().signifierVictoire(tousLesPersonnages.get(0).getProprio());
 			}
 			//Si il n'y a plus deux adversaire alors on fini le jeu
-			getMaVue().naviguer(new VueFinJeu(this));
+			getVue().naviguer(new VueFinJeu(this));
 			return;
 		}
 
 		//Joueur suivant
-		getMaPartie().joueurSuivant();
+		getPartie().joueurSuivant();
 		
 		//Recherche un Personnage du joueur actuel qui n'a pas deja joue
 		boolean tousPersonnagesjoueurOntJoue = true;
-		for(Personnage o : getMaPartie().listerEquipeJoueur()){
+		for(Personnage o : getPartie().listerEquipeJoueur()){
 			if (!o.isDejaJoue()){
 				tousPersonnagesjoueurOntJoue = false;
 				break;
@@ -229,28 +240,90 @@ public class ControleurFenetre{
 				}
 			} else {
 				//Le tour de jeu repasse au meme joueur
-				getMaPartie().joueurSuivant();
+				getPartie().joueurSuivant();
 			}
 		}
 		
-		getMaVue().naviguer(new VueJeuCombat(
+		getVue().naviguer(new VueJeuCombat(
 						this,
-						getMaPartie().getPlateauHauteur(),
-						getMaPartie().getPlateauLargeur(),
-						getMaPartie().getJoueurs(),
-						getMaPartie().getJoueurActuel()
+						getPartie().getPlateauHauteur(),
+						getPartie().getPlateauLargeur(),
+						getPartie().getJoueurs(),
+						getPartie().getJoueurActuel()
 					)
 				);
+                
+                if (getPartie().getJoueurActuel() instanceof IA) {
+                    coupSuivant();
+                }
+            } while (getPartie().getJoueurActuel() instanceof IA);
+                
 	}
+        
+        /**
+         * Passe au coup suivant et joue ce coup pour les joueurs artificiels
+         */
+        public synchronized void coupSuivant() {
+            if (getPartie().getJoueurActuel() instanceof IA) {
+                System.out.println(Thread.currentThread().getName()+": "+"==========================================================================");
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                IA ia = (IA) getPartie().getJoueurActuel();
+                IAThread calcul = new IAThread(ia, getPartie(), executor);
+                executor.execute(calcul);
+                try {
+                    if (!executor.awaitTermination(IA.DELAY, TimeUnit.MILLISECONDS))
+                    {
+                        // Forcer la fin du thread du joueur artificiel
+                        System.out.println(Thread.currentThread().getName()+": "+"Forcer l'interruption");
+                        executor.shutdownNow();
+                        System.out.println(Thread.currentThread().getName()+": "+"est interrompu ? = " + (calcul.isInterrupted()?"oui":"non"));
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                try {
+                    calcul.join();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ControleurFenetre.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+//                while (calcul.isAlive()) {}
+                Coup coup;
+                // Si aucun coup n'a ete retourne, prendre le dernier coup memorise
+                if (calcul.getCoupChoisi() == null) {
+                    System.out.println(Thread.currentThread().getName()+": "+"Aucun coup choisi");
+                    coup = ia.getCoupMemorise();
+                }
+                else {
+                    System.out.println(Thread.currentThread().getName()+": "+"coup choisi = " + calcul.getCoupChoisi());
+                    coup = calcul.getCoupChoisi();
+                }
+                // Si aucun coup memorise, prendre un coup au hasard
+                while (coup == null) {
+                    System.out.println(Thread.currentThread().getName()+": "+"Aucun coup memorise");
+                    coup = (new IAAleatoire()).getCoup(getPartie());
+                    System.out.println("Nouveau coup calcule = " + coup);
+                }
+                
+                System.out.println(Thread.currentThread().getName()+": "+"Coup choisi = "+coup.toString());
+                getPartie().appliquerCoup(coup);
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ControleurCombat.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                getVue().revalidate();
+            }
+        }
 	
 	/**
 	 *  Change le contenu de la fenetre vers la classe de composition de l'equipe du joueur actuel
 	 */
 	public void nouvellePartie(){
 		ControleurFenetre.nbJoueurConfigurer = 0;
-		getMaPartie().reset();
-		getMaVue().naviguer(
-				new VueParamJoueur(this, getMaPartie().getNomJoueur())
+		getPartie().reset();
+		getVue().naviguer(
+				new VueParamJoueur(this, getPartie().getNomJoueur())
 				);
 	}
 	/****************** GETTERS ******************/
@@ -258,15 +331,33 @@ public class ControleurFenetre{
 	 * Getter sur la fenetre de jeu
 	 * @return fenetre de jeu
 	 */
-	public Fenetre getMaVue(){
-		return maVue;
+	public Fenetre getVue(){
+		return vue;
 	}
 	
 	/**
 	 * Getter sur le modele du jeu en cours
 	 * @return jeu en cours
 	 */
-	public Partie getMaPartie(){
-		return maVue.getMaPartie();
+	public Partie getPartie(){
+		return vue.getPartie();
 	}
+
+        /**
+         * Renvoie la derniere configuration initiale
+         * @return the configurationInitiale
+         */
+        public Partie getConfigurationInitiale() {
+            return configurationInitiale;
+        }
+        
+        /****************** SETTER ******************/
+        
+
+        /**
+         * @param configurationInitiale the configurationInitiale to set
+         */
+        public void setConfigurationInitiale(Partie configurationInitiale) {
+            this.configurationInitiale = configurationInitiale;
+        }
 }

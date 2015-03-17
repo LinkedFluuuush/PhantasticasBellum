@@ -13,7 +13,7 @@ import Controleur.*;
 public class Fenetre  extends JFrame{
 	private static final long serialVersionUID = 1L;
 	
-	private Partie maPartie;
+	private Partie partie;
 	private ControleurFenetre controleur;
 	
 	/**
@@ -24,7 +24,7 @@ public class Fenetre  extends JFrame{
 		super("PhantasticasBellum");
 		setLocale(Locale.FRENCH);
 		
-		this.maPartie = maPartie;
+		this.partie = maPartie;
 		this.controleur = new ControleurFenetre(this);
 		
 		controleur.initVue();
@@ -69,8 +69,8 @@ public class Fenetre  extends JFrame{
 	 * Retourne la partie en cours
 	 * @return objet Partie
 	 */
-	public Partie getMaPartie() {
-		return maPartie;
+	public Partie getPartie() {
+		return partie;
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class Fenetre  extends JFrame{
          * @param maPartie La partie à associer
          */
         public void setPartie(Partie maPartie) {
-            this.maPartie = maPartie;
+            this.partie = maPartie;
             this.controleur = new ControleurFenetre(this);
 		
             controleur.initVue();

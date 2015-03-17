@@ -20,15 +20,35 @@ public class Equipe {
 	private etatTour monEtatTour = etatTour.PASSIF;
 	
 	private Sort attaque = null;
-	private List<Personnage> PersonnagesAttaques = null;
-	private Personnage PersonnageActif = null;
+	private List<Personnage> personnagesAttaques = null;
+	private Personnage personnageActif = null;
 	
 	/**
 	 * Constructeur
 	 */
 	public Equipe(){
-		PersonnagesAttaques = new ArrayList<Personnage>();
+		personnagesAttaques = new ArrayList<Personnage>();
 	}
+        
+        /**
+         * Clone l'equipe courante
+         * @return une nouvelle equipe
+         */
+        public Equipe clone() {
+                Equipe clone = new Equipe();
+                clone.monEtatTour = this.monEtatTour;
+                for (Personnage pers : this.membres) {
+                    Personnage clone_pers = (Personnage) pers.clone();
+                    clone.membres.add(clone_pers);
+                    if (pers == this.personnageActif) {
+                        clone.personnageActif = clone_pers;
+                    }
+                }
+                for (Personnage pers : this.personnagesAttaques) {
+                    clone.personnagesAttaques.add((Personnage) pers.clone());
+                }
+                return clone;
+        }
 	
 	/**
 	 * Lance l'attaque sur les Personnage cibles
@@ -98,7 +118,7 @@ public class Equipe {
 	 * Reset le Personnage attaquer
 	 */
 	public void clearPersonnagesAttaques(){
-		PersonnagesAttaques.clear();
+		personnagesAttaques.clear();
 	}
 	
 	/**
@@ -109,14 +129,14 @@ public class Equipe {
 	}
 
 	/**
-	 * Reset le Personnage actif
+	 * Oublie le personnage actif
 	 */
 	public void clearPersonnageActif(){
 		setPersonnageActif(null);
 	}
 	
 	/**
-	 * Retourne les Personnage composant l'equipe
+	 * Retourne les personnage composant l'equipe
 	 * @return liste de Personnage
 	 */
 	public List<Personnage> getMembres() {
@@ -132,19 +152,19 @@ public class Equipe {
 	}
 	
 	/**
-	 * Retourne la liste des Personnage attaques par l'attaque en cours
+	 * Retourne la liste des personnages attaques par l'attaque en cours
 	 * @return liste de Personnage
 	 */
 	public List<Personnage> getPersonnagesAttaques() {
-		return PersonnagesAttaques;
+		return personnagesAttaques;
 	}
 	
 	/**
-	 * Retourne le Personnage actif
+	 * Retourne le personnage actif
 	 * @return Personnage
 	 */
 	public Personnage getPersonnageActif() {
-		return PersonnageActif;
+		return personnageActif;
 	}
 	
 	/**
@@ -154,10 +174,31 @@ public class Equipe {
 	etatTour getEtatTour() {
 		return monEtatTour;
 	}
+        
+        /**
+         * Teste si l'équipe courante est battue, c'est-a-dire si tous les personnages sont elimines
+         * @return Vrai si l'equipe courante a perdu, faux sinon
+         */
+        public boolean estBattue() {
+            boolean perdu = false;
+            for (Personnage pers : membres) {
+                perdu |= pers.estVivant();
+            }
+            return perdu;
+        }
+        
+        @Override
+        public String toString() {
+            String str = "";
+            for (Personnage pers : membres) {
+                str += pers.toString() + "\n";
+            }
+            return str;
+        }
 	
 	
 	/**
-	 * Affecte une position au Personnage actif
+	 * Affecte une position au personnage actif
 	 * @param maPosition position a affectee
 	 */
 	public void setPositionPersonnage(Position maPosition){
@@ -165,7 +206,7 @@ public class Equipe {
 	}
 	
 	/**
-	 * Fixe les Personnage composant l'equipe
+	 * Fixe les personnages composant l'equipe
 	 * @param pFsEquipe nouvelle liste des Personnage de l'equipe
 	 */
 	private void setMembres(List<Personnage> pFsEquipe) {
@@ -181,19 +222,19 @@ public class Equipe {
 	}
 
 	/**
-	 * Ajoute un Personnage a la liste des Personnage attaque
+	 * Ajoute un personnage a la liste des personnages attaques
 	 * @param personnageAttaque nouveau personnage attaque
 	 */
 	public void addPersonnageAttaque(Personnage personnageAttaque) {
-		this.PersonnagesAttaques.add(personnageAttaque);
+		this.personnagesAttaques.add(personnageAttaque);
 	}
 
 	/**
-	 * Fixe le Personnage actif
-	 * @param personnageActif nouveau Personnage actif
+	 * Fixe le personnage actif
+	 * @param personnageActif nouveau personnage actif
 	 */
 	public void setPersonnageActif(Personnage personnageActif) {
-		this.PersonnageActif = personnageActif;
+		this.personnageActif = personnageActif;
 	}
 	
 	/**
