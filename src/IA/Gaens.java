@@ -4,6 +4,7 @@ import Controleur.Partie;
 import Evaluation.HeuristiqueCoup;
 import Model.Coup;
 
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,12 +33,10 @@ public class Gaens extends AbstractIA{
             if(alphaTmp > alpha){
                 alpha = alphaTmp;
                 memoriseCoup(c);
-                System.out.println("Alpha : " + alpha + "\t Heuristique : " + hc.getHeuristique(c));
             }
         }
 
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Coup choisi : " + getCoupMemorise());
-        System.out.println(Thread.currentThread().getName()+": "+"Coup choisi = "+getCoupMemorise().toString());
+        System.out.println(getCoupMemorise().getAuteur().getProprio().getNom() + ": " + "Coup choisi = " + getCoupMemorise().toString());
         System.out.println("Heuristique du coup : " + hc.getHeuristique(getCoupMemorise()));
 
         return getCoupMemorise();
@@ -45,36 +44,48 @@ public class Gaens extends AbstractIA{
 
     private int alphaBetaVal(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta, HeuristiqueCoup hc) {
         int alphaTemp, betaTemp, val;
-        int cout = hc.getHeuristique(c) + coutCumuleActuel;
+        int profActuelleTemp = profActuelle + 1;
+        int cout = coutCumuleActuel;
         Partie pClone = p.clone();
         pClone.appliquerCoup(c);
+        pClone.joueurSuivant();
 
-        if (pClone.estTerminee() || profActuelle == profMax) {
-            return cout;
-        } else {
-            if(p.getJoueurActuel() instanceof Gaens) { //Noeud Max
-                alphaTemp = -9999;
-                for(Coup nCoup : p.getTousCoups()){
-                    val = alphaBetaVal(nCoup, pClone, profMax, profActuelle++, cout, Math.max(alpha, alphaTemp), beta, hc);
-                    alphaTemp = Math.max(alphaTemp, val);
+        if(pClone.getJoueurActuel() instanceof Gaens) { //Noeud Max
+            cout = cout + hc.getHeuristique(c);
 
-                    if(alphaTemp >= beta){
-                        return alphaTemp;
-                    }
-                }
-                return alphaTemp;
-            } else { //Noeud Min
-                betaTemp = 9999;
-                for (Coup nCoup : p.getTousCoups()) {
-                    val = alphaBetaVal(nCoup, pClone, profMax, profActuelle++, cout, alpha, Math.min(beta, betaTemp), hc);
-                    betaTemp = Math.min(betaTemp, val);
-
-                    if(betaTemp <= alpha){
-                        return betaTemp;
-                    }
-                }
-                return betaTemp;
+            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
+//                System.out.println("Cout de la branche : " + cout);
+                return cout;
             }
+
+            alphaTemp = -9999;
+            for(Coup nCoup : pClone.getTousCoups()){
+                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta, hc);
+                alphaTemp = Math.max(alphaTemp, val);
+
+                if(alphaTemp >= beta){
+                    return alphaTemp;
+                }
+            }
+            return alphaTemp;
+        } else { //Noeud Min
+            cout = cout - hc.getHeuristique(c);
+
+            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
+//                System.out.println("Cout de la branche : " + cout);
+                return cout;
+            }
+
+            betaTemp = 9999;
+            for (Coup nCoup : pClone.getTousCoups()) {
+                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp), hc);
+                betaTemp = Math.min(betaTemp, val);
+
+                if (betaTemp <= alpha) {
+                    return betaTemp;
+                }
+            }
+            return betaTemp;
         }
     }
 }

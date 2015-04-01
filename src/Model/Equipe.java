@@ -184,7 +184,7 @@ public class Equipe {
             for (Personnage pers : membres) {
                 perdu |= pers.estVivant();
             }
-            return perdu;
+            return !perdu;
         }
         
         @Override

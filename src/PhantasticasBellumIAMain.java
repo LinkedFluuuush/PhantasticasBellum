@@ -56,11 +56,12 @@ public class PhantasticasBellumIAMain {
 
     public static void main(String[] args) {
         // Initialise chaque joueur
-//        Joueur j1 = new Joueur("Joueur 1");
+        Joueur j1 = new Joueur("Joueur 1");
 //        Joueur j1 = new IAAleatoire("Aleatoire 1");
-        Joueur j1 = new Gaens();
-        Joueur j2 = new IAAleatoire("Aleatoire 2");
-        
+        Joueur j2 = new Gaens();
+//        Joueur j2 = new IAAleatoire("Aleatoire 2");
+//        Joueur j2 = new Joueur("Joueur 2");
+
         Fenetre fenetre = new Fenetre();
         Partie maPartie = new Partie(false, j1, j2);
         fenetre.setPartie(maPartie);

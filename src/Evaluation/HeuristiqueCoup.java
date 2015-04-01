@@ -35,7 +35,7 @@ public class HeuristiqueCoup {
 				}
 			}
 		}
-		
+
 		return valeur;
 	}
 	
