@@ -6,7 +6,7 @@ import Model.Coup;
 /**
  * Created by Jean-Baptiste Louvet on 11/03/15.
  */
-public class IAAlphaBeta extends IA {
+public class IAAlphaBeta extends AbstractIA{
     public IAAlphaBeta(){
         super("IA Alpha Beta");
     }
@@ -16,7 +16,6 @@ public class IAAlphaBeta extends IA {
         return alphaBeta(-9999, 9999, p);
     }
 
-    @Override
     public int getHeuristique(Coup c) {
         return 0;
     }
