@@ -52,4 +52,12 @@ public abstract class IA extends Joueur {
      */
     public abstract Coup getCoup(Partie p);
 
+    /**
+     * Calcule l'heuristique d'un coup
+     *
+     * @param c Coup à analyser
+     * @return la valeur d'heuristique
+     */
+    public abstract int getHeuristique(Coup c);
+
 }

@@ -389,7 +389,7 @@ public class Partie {
             List<Deplacement> deplacementsTheoriques = pf.getDeplacements();
             List<Deplacement> deplacementsVerifies = new ArrayList();
             for (Deplacement d : deplacementsTheoriques) {
-//                System.out.println("Déplacement theorique = " + d.toString());
+//                System.out.println("Dï¿½placement theorique = " + d.toString());
 //                System.out.println("-> " + (isCaseValide(d.getDestination())?"valide":"pas valide") + " && " + (isCaseLibre(d.getDestination())?"libre":"pas libre"));
                 if (isCaseValide(d.getDestination()) && isCaseLibre(d.getDestination())) {
                     deplacementsVerifies.add(d);
