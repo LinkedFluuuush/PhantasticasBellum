@@ -57,15 +57,15 @@ public class IAThread extends Thread {
     public void run() {
         try {
             coupChoisi = ia.getCoup(partie);
-            System.out.println(Thread.currentThread().getName()+": "+"Coup memorise");
+            //System.out.println(Thread.currentThread().getName()+": "+"Coup memorise");
         }
         catch (Exception ex) {
             Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println(Thread.currentThread().getName()+": "+"Interrompu");
+            //System.out.println(Thread.currentThread().getName()+": "+"Interrompu");
         }
         finally {
             executor.shutdown();
-            System.out.println(Thread.currentThread().getName()+": "+"Fin de l'executor");
+            //System.out.println(Thread.currentThread().getName()+": "+"Fin de l'executor");
         }
     }
 

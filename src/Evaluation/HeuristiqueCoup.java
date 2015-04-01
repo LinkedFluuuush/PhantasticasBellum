@@ -10,7 +10,7 @@ import Model.Sort;
 
 public class HeuristiqueCoup {
 
-	public int getHeuristique(Coup c, String nomJoueur) {
+	public int getHeuristique(Coup c) {
 		int valeur=0;
 		List<Action> actions = c.getActions();
 		
@@ -26,8 +26,8 @@ public class HeuristiqueCoup {
 
 				String nom = cible.getProprio().getNom();
 				
-				//Si le personnage appartient au joueur spécifié
-				if(nom==nomJoueur){
+				//Si le personnage appartient au joueur spï¿½cifiï¿½
+				if(nom==c.getAuteur().getProprio().getNom()){
 					valeur-=s.getDegat();
 				} else {
 					valeur+=s.getDegat();

@@ -27,21 +27,21 @@ public class IAAleatoire extends AbstractIA {
     
     @Override
     public Coup getCoup(Partie p) {
-        System.out.println(Thread.currentThread().getName()+": "+"-------- getCoup ---------");
+        //System.out.println(Thread.currentThread().getName()+": "+"-------- getCoup ---------");
         List<Coup> coups = p.getTousCoups();
         if (coups.size() == 0) {
             coups = p.getTousCoups();
-            System.out.println(Thread.currentThread().getName()+": "+"Recomputed all strokes");
+            //System.out.println(Thread.currentThread().getName()+": "+"Recomputed all strokes");
             for (Coup c : coups) {
-                System.out.println(Thread.currentThread().getName()+": "+"+ Coup possible : " + c.toString());
+                //System.out.println(Thread.currentThread().getName()+": "+"+ Coup possible : " + c.toString());
             }
             System.exit(1);
         }
         for (Coup c : coups) {
-            System.out.println(Thread.currentThread().getName()+": "+"Coup possible : " + c.toString());
+            //System.out.println(Thread.currentThread().getName()+": "+"Coup possible : " + c.toString());
         }
         Coup resultat = coups.get((int) (Math.random() * (coups.size() - 1)));
-        System.out.println(Thread.currentThread().getName()+": "+"Coup calcule = " + resultat.toString());
+        //System.out.println(Thread.currentThread().getName()+": "+"Coup calcule = " + resultat.toString());
         return resultat;
     }
 

@@ -265,7 +265,7 @@ public class ControleurFenetre {
          */
         public synchronized void coupSuivant() {
             if (getPartie().getJoueurActuel() instanceof AbstractIA) {
-                System.out.println(Thread.currentThread().getName()+": "+"==========================================================================");
+                //System.out.println(Thread.currentThread().getName()+": "+"==========================================================================");
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 AbstractIA ia = (AbstractIA) getPartie().getJoueurActuel();
                 IAThread calcul = new IAThread(ia, getPartie(), executor);
@@ -274,9 +274,9 @@ public class ControleurFenetre {
                     if (!executor.awaitTermination(AbstractIA.DELAI_DE_REFLEXION, TimeUnit.MILLISECONDS))
                     {
                         // Forcer la fin du thread du joueur artificiel
-                        System.out.println(Thread.currentThread().getName()+": "+"Forcer l'interruption");
+                        //System.out.println(Thread.currentThread().getName()+": "+"Forcer l'interruption");
                         executor.shutdownNow();
-                        System.out.println(Thread.currentThread().getName()+": "+"est interrompu ? = " + (calcul.isInterrupted()?"oui":"non"));
+                        //System.out.println(Thread.currentThread().getName()+": "+"est interrompu ? = " + (calcul.isInterrupted()?"oui":"non"));
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
@@ -291,21 +291,21 @@ public class ControleurFenetre {
                 Coup coup;
                 // Si aucun coup n'a ete retourne, prendre le dernier coup memorise
                 if (calcul.getCoupChoisi() == null) {
-                    System.out.println(Thread.currentThread().getName()+": "+"Aucun coup choisi");
+                    //System.out.println(Thread.currentThread().getName()+": "+"Aucun coup choisi");
                     coup = ia.getCoupMemorise();
                 }
                 else {
-                    System.out.println(Thread.currentThread().getName()+": "+"coup choisi = " + calcul.getCoupChoisi());
+                    //System.out.println(Thread.currentThread().getName()+": "+"coup choisi = " + calcul.getCoupChoisi());
                     coup = calcul.getCoupChoisi();
                 }
                 // Si aucun coup memorise, prendre un coup au hasard
                 while (coup == null) {
-                    System.out.println(Thread.currentThread().getName()+": "+"Aucun coup memorise");
+                    //System.out.println(Thread.currentThread().getName()+": "+"Aucun coup memorise");
                     coup = (new IAAleatoire()).getCoup(getPartie());
-                    System.out.println("Nouveau coup calcule = " + coup);
+                    //System.out.println("Nouveau coup calcule = " + coup);
                 }
                 
-                System.out.println(Thread.currentThread().getName()+": "+"Coup choisi = "+coup.toString());
+                //System.out.println(Thread.currentThread().getName()+": "+"Coup choisi = "+coup.toString());
                 getPartie().appliquerCoup(coup);
                 try {
                     Thread.sleep(10);
