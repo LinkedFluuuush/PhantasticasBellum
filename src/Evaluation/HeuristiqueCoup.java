@@ -25,6 +25,7 @@ public class HeuristiqueCoup {
 				
 
 				String nom = cible.getProprio().getNom();
+				String nomJoueur = c.getAuteur().getProprio().getNom();
 				
 				//Si le personnage appartient au joueur sp�cifi�
 				if(nom==c.getAuteur().getProprio().getNom()){
