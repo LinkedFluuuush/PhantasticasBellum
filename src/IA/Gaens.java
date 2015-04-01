@@ -6,9 +6,9 @@ import Model.Coup;
 /**
  * Created by Jean-Baptiste Louvet on 11/03/15.
  */
-public class IAAlphaBeta extends AbstractIA{
-    public IAAlphaBeta(){
-        super("IA Alpha Beta");
+public class Gaens extends AbstractIA{
+    public Gaens(){
+        super("Gaens");
     }
 
     @Override
