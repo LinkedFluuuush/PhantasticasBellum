@@ -10,7 +10,7 @@ import Model.Sort;
 
 public class HeuristiqueCoup {
 
-	public int getHeuristique(Coup c, String nomJoueur) {
+	public int getHeuristique(Coup c) {
 		int valeur=0;
 		List<Action> actions = c.getActions();
 		
@@ -23,11 +23,11 @@ public class HeuristiqueCoup {
 				Sort s = a.getSort();
 				List<Personnage> cibles = a.getCibles(); //getCibles retourne List<Personnage>
 				
-				//Pour chaque personnage ciblé par l'attaqye
+				//Pour chaque personnage ciblé par l'attaque
 				for(Personnage cible : cibles) {
 					String nom = cible.getProprio().getNom();
-					
-					//Si le personnage appartient au joueur spécifié
+					String nomJoueur = c.getAuteur().getProprio().getNom();
+					//Si le personnage touché est celui qui a lancé le coup
 					if(nom==nomJoueur){
 						valeur-=s.getDegat();
 					} else {
