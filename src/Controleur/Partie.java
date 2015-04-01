@@ -1,14 +1,25 @@
 package Controleur;
 
-import Model.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import Controleur.ControleurPlacement.coteJeu;
-import Exception.ExceptionPersonnage;
 import Exception.ExceptionParamJeu;
+import Exception.ExceptionPersonnage;
 import GUI.Fenetre;
-
-import java.util.*;
-
-import Personnages.*;
+import Model.Action;
+import Model.Attaque;
+import Model.Coup;
+import Model.Deplacement;
+import Model.Joueur;
+import Model.Personnage;
+import Model.Position;
+import Model.Sort;
+import Personnages.Cavalier;
+import Personnages.Guerrier;
+import Personnages.Magicien;
+import Personnages.Voleur;
 
 /**
  * La classe Partie est le controleur du systeme, elle est le pivot etre le model et la vue
@@ -388,11 +399,10 @@ public class Partie {
             coups.add(new Coup(pf, new ArrayList()));
             
             // Deplacements seuls
-            coups.add(new Coup(pf, new ArrayList()));
             List<Deplacement> deplacementsTheoriques = pf.getDeplacements();
             List<Deplacement> deplacementsVerifies = new ArrayList();
             for (Deplacement d : deplacementsTheoriques) {
-//                System.out.println("Dï¿½placement theorique = " + d.toString());
+//                System.out.println("Déplacement theorique = " + d.toString());
 //                System.out.println("-> " + (isCaseValide(d.getDestination())?"valide":"pas valide") + " && " + (isCaseLibre(d.getDestination())?"libre":"pas libre"));
                 if (isCaseValide(d.getDestination()) && isCaseLibre(d.getDestination())) {
                     deplacementsVerifies.add(d);
@@ -403,11 +413,14 @@ public class Partie {
             // Attaques seules
             for (Sort sort : pf.getAttaques()) {
                 List<Position> cibles = sort.getZone().getCasesAccessible(pf.getPosition());
+                List<Action> actions = new ArrayList<Action>(); //ajout
                 for (Personnage cible : listerEquipes()) {
                     if (cibles.contains(cible.getPosition())) {
-                        coups.add(new Coup(pf, new Attaque(sort, cible)));
+                    	actions.add(new Attaque(sort, cible)); //ajout
+                        //coups.add(new Coup(pf, new Attaque(sort, cible)));
                     }
                 }
+                coups.add(new Coup(pf, actions)); //ajout
             }
             
             return coups;
