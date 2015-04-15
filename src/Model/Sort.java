@@ -103,6 +103,14 @@ public class Sort {
 	public Matrice getZone() {
 		return zone;
 	}
+        
+        /**
+         * Teste si le sort courant a une portee limitee
+         * @return vrai si le sort a une portee limitee, faux sinon
+         */
+        public boolean hasPorteeLimitee() {
+                return (porteeMax != -1);
+        }
 	
 	/**
 	 * Recupere la portee minimal de l'attaque
@@ -170,7 +178,8 @@ public class Sort {
          * @return vrai si le sort pourrait etre lance
          */
         public boolean peutAtteindre(Position origine, Position cible) {
-            return getZone().getCasesAccessible(origine).contains(cible);
+            return (!hasPorteeLimitee()
+                    || new Matrice(porteeMin, porteeMax, false).getCasesAccessibles(origine).contains(cible));
         }
         
         /**

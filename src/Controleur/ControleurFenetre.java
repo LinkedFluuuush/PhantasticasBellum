@@ -182,69 +182,13 @@ public class ControleurFenetre {
 	 *  Change le contenu de la fenetre vers la classe du deroulement d'un tour de jeu si le jeu n'est pas termine
 	 */
 	public void tourSuivant(){
+            boolean continuer = false;
             // Enchainer les tours tant que le joueur suivant est un joueur artificiel
             do {
-		//Recupere tous les personnages qui sont encore en jeu
-		List<Personnage> tousLesPersonnages = getPartie().listerEquipes();
-		boolean encoreDeuxAdversaire = false;
-		//On regarde si il y a un personnage qui a un joueur different du premier personnage
-		if (getPartie().listerEquipes().isEmpty()){
-			encoreDeuxAdversaire = false;
-		}else{
-			//Si les deux joueurs sont encore sur le plateau
-			for (Personnage o : getPartie().listerEquipes()){
-				if(o.getProprio() != tousLesPersonnages.get(0).getProprio()){
-					encoreDeuxAdversaire = true;
-					break;
-				}
-			}
-		}
-		
-		//Test si il n'y a plus qu'un joueur
-		if(!encoreDeuxAdversaire){
-			//Si il y a un gagnant, alors on le notify
-			if(getPartie().listerEquipes().isEmpty() == false){
-				getPartie().signifierVictoire(tousLesPersonnages.get(0).getProprio());
-			}
-			//Si il n'y a plus deux adversaire alors on fini le jeu
-			getVue().naviguer(new VueFinJeu(this));
-			return;
-		}
-
-		//Joueur suivant
-		getPartie().joueurSuivant();
-		
-		//Recherche un Personnage du joueur actuel qui n'a pas deja joue
-		boolean tousPersonnagesjoueurOntJoue = true;
-		for(Personnage o : getPartie().listerEquipeJoueur()){
-			if (!o.isDejaJoue()){
-				tousPersonnagesjoueurOntJoue = false;
-				break;
-			}
-		}
-		//Si la totalite des personnages du joueur actuel ont joue
-		if (tousPersonnagesjoueurOntJoue){
-			//Si tous les personnages du jeu ont joue
-			boolean tousPFontJoue = true;
-			for(Personnage o : tousLesPersonnages){
-				if (!o.isDejaJoue()){
-					tousPFontJoue = false;
-					break;
-				}
-			}
-			//Si tous les personnages du plateau ont joue
-			if (tousPFontJoue){
-				//remise a zero de l'etat aJoue de chaque personnage
-				for(Personnage o : tousLesPersonnages){
-					o.setDejaJoue(false);
-				}
-			} else {
-				//Le tour de jeu repasse au meme joueur
-				getPartie().joueurSuivant();
-			}
-		}
-		
-		getVue().naviguer(new VueJeuCombat(
+                continuer = getPartie().tourSuivant();
+		if (continuer) {
+                    System.gc();
+                    getVue().naviguer(new VueJeuCombat(
 						this,
 						getPartie().getPlateauHauteur(),
 						getPartie().getPlateauLargeur(),
@@ -252,12 +196,16 @@ public class ControleurFenetre {
 						getPartie().getJoueurActuel()
 					)
 				);
-                
-                if (getPartie().getJoueurActuel() instanceof AbstractIA) {
-                    coupSuivant();
+                    if (getPartie().getJoueurActuel() instanceof AbstractIA) {
+                        coupSuivant();
+                    }
                 }
-            } while (getPartie().getJoueurActuel() instanceof AbstractIA);
-
+                else {
+                    getVue().naviguer(new VueFinJeu(this));
+                }
+                
+            } while (continuer && getPartie().getJoueurActuel() instanceof AbstractIA);
+                
 	}
         
         /**
@@ -265,7 +213,7 @@ public class ControleurFenetre {
          */
         public synchronized void coupSuivant() {
             if (getPartie().getJoueurActuel() instanceof AbstractIA) {
-                //System.out.println(Thread.currentThread().getName()+": "+"==========================================================================");
+                System.out.println(Thread.currentThread().getName()+": "+"==========================================================================");
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 AbstractIA ia = (AbstractIA) getPartie().getJoueurActuel();
                 IAThread calcul = new IAThread(ia, getPartie(), executor);
@@ -274,9 +222,9 @@ public class ControleurFenetre {
                     if (!executor.awaitTermination(AbstractIA.DELAI_DE_REFLEXION, TimeUnit.MILLISECONDS))
                     {
                         // Forcer la fin du thread du joueur artificiel
-                        //System.out.println(Thread.currentThread().getName()+": "+"Forcer l'interruption");
+                        System.out.println(Thread.currentThread().getName()+": "+"Forcer l'interruption");
                         executor.shutdownNow();
-                        //System.out.println(Thread.currentThread().getName()+": "+"est interrompu ? = " + (calcul.isInterrupted()?"oui":"non"));
+                        System.out.println(Thread.currentThread().getName()+": "+"est interrompu ? = " + (calcul.isInterrupted()?"oui":"non"));
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
@@ -291,21 +239,21 @@ public class ControleurFenetre {
                 Coup coup;
                 // Si aucun coup n'a ete retourne, prendre le dernier coup memorise
                 if (calcul.getCoupChoisi() == null) {
-                    //System.out.println(Thread.currentThread().getName()+": "+"Aucun coup choisi");
+                    System.out.println(Thread.currentThread().getName()+": "+"Aucun coup choisi");
                     coup = ia.getCoupMemorise();
                 }
                 else {
-                    //System.out.println(Thread.currentThread().getName()+": "+"coup choisi = " + calcul.getCoupChoisi());
+//                    System.out.println(Thread.currentThread().getName()+": "+"coup choisi = " + calcul.getCoupChoisi());
                     coup = calcul.getCoupChoisi();
                 }
                 // Si aucun coup memorise, prendre un coup au hasard
                 while (coup == null) {
-                    //System.out.println(Thread.currentThread().getName()+": "+"Aucun coup memorise");
+                    System.out.println(Thread.currentThread().getName()+": "+"Aucun coup memorise");
                     coup = (new IAAleatoire()).getCoup(getPartie());
-                    //System.out.println("Nouveau coup calcule = " + coup);
+                    System.out.println("Nouveau coup calcule = " + coup);
                 }
                 
-                //System.out.println(Thread.currentThread().getName()+": "+"Coup choisi = "+coup.toString());
+                System.out.println("Coup choisi = "+coup.toString());
                 getPartie().appliquerCoup(coup);
                 try {
                     Thread.sleep(10);

@@ -29,6 +29,11 @@ public class Deplacement implements Action {
 
     @Override
     public void appliquer(Partie partie) {
-        partie.getPersonnageActif().setPosition(destination);
+        // Chercher la cible dans la partie (car eventuellement un clone de la partie)
+        for (Personnage perso : partie.listerEquipes()) {
+            if (perso.getPosition().equals(origine)) {
+                perso.setPosition(destination);
+            }
+        }
     }
 }

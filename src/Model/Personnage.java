@@ -71,23 +71,57 @@ public abstract class Personnage extends Observable implements Cloneable{
 	public Personnage(int pm, int vie, Matrice mouvement, String classe, creatureType type){
 		this(pm, vie, mouvement, classe, type, "/images/large_DefaultPersonnage.png", "/images/small_DefaultPersonnage.png");
 	}
+        
+        @Override
+        public abstract Object clone();
 		
-	public Object clone(){
-		Personnage personnage = null;
-		try{
-			personnage = (Personnage) super.clone();
-		} catch (CloneNotSupportedException cnse){
-			cnse.printStackTrace(System.err);
-		}
+        /**
+         * Copie un personnage
+         * @param perso le personnage a copier
+         */
+	public void copier(Personnage perso){
+		this.pm = perso.pm;
+		this.vie = perso.vie;
+                this.maxVie = perso.maxVie;
+		this.mouvement = perso.mouvement;
+		this.classe = perso.classe;
+                this.nom = perso.nom;
+		this.image = perso.image;
+                this.vignette = perso.vignette;
+		this.attaque = perso.attaque;
+		this.dejaJoue = perso.dejaJoue;
+                this.position = (Position) perso.position.clone();
+		this.type = perso.type;
+                
 		//Clone les dependances (objets) non immuables (types primitifs non inclus)
 		//Les attaques sont identiques pour tous les Personnage, pas de clonnage
 		//Clonnage des effets
-		List<Effet> listeEffetClone = new ArrayList<Effet>();
-		for(Effet o : getEffet()) listeEffetClone.add((Effet) o.clone());
-		personnage.setEffet(listeEffetClone);
-                personnage.setNom(this.getNom());
-		
-		return personnage;
+		List<Effet> listeEffetClone = new ArrayList();
+		for(Effet e : perso.getEffet()) listeEffetClone.add((Effet) e.clone());
+		this.setEffet(listeEffetClone);
+	}
+        
+        /**
+	 * Teste l'égalité entre deux personnages
+         * @return Vrai si les personnages sont équivalents
+	 */
+	public boolean equals(Object obj){
+		if (obj == this){
+			return true;
+		}
+		if (!(obj instanceof Personnage)){
+			return false;
+		}
+		Personnage perso = (Personnage) obj;
+		return (this.pm == perso.pm
+                    &&  this.vie == perso.vie
+                    &&  this.maxVie == perso.maxVie
+                    &&  this.mouvement.equals(perso.mouvement)
+                    &&  this.classe.equals(perso.classe)
+                    &&  this.nom.equals(perso.nom)
+                    &&  this.dejaJoue == perso.dejaJoue
+                    &&  this.position.equals(perso.position)
+                    &&  this.type  == perso.type);
 	}
 	
 	/**
@@ -257,7 +291,7 @@ public abstract class Personnage extends Observable implements Cloneable{
          */
         public List<Deplacement> getDeplacements() {
                 List<Deplacement> l = new ArrayList();
-                for (Position destination : getMouvement().getCasesAccessible(position)) {
+                for (Position destination : getMouvement().getCasesAccessibles(position)) {
                     l.add(new Deplacement(position, destination));
                 }
                 return l;
@@ -270,6 +304,31 @@ public abstract class Personnage extends Observable implements Cloneable{
 	public List<Effet> getEffet() {
 		return effet;
 	}
+        
+        /**
+         * Teste si le personnage courant est actuellement ralenti
+         * @return Vrai si le personnage est ralenti, faux sinon
+         */
+        public boolean isRalenti() {
+            for (Effet e : effet) {
+                if (e.getPmRetirer() > 0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /**
+         * Renvoie la valeur du bouclier du personnage courant
+         * @return un entier positif ou nul si aucun bouclier
+         */
+        public int getBouclier() {
+            int bouclier = 0;
+            for (Effet e : effet) {
+                bouclier += e.getBouclier();
+            }
+            return bouclier;
+        }
 
 	/**
 	 * Getter de dejaJoueur

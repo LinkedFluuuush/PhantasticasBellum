@@ -65,7 +65,7 @@ public class IAThread extends Thread {
         }
         finally {
             executor.shutdown();
-            System.out.println(Thread.currentThread().getName()+": "+"Fin de l'executor");
+//            System.out.println(Thread.currentThread().getName()+": "+"Fin de l'executor");
         }
     }
 

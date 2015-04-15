@@ -180,11 +180,11 @@ public class Equipe {
          * @return Vrai si l'equipe courante a perdu, faux sinon
          */
         public boolean estBattue() {
-            boolean perdu = false;
+            boolean unPersoVivant = false;
             for (Personnage pers : membres) {
-                perdu |= pers.estVivant();
+                unPersoVivant |= pers.estVivant();
             }
-            return !perdu;
+            return !unPersoVivant;
         }
         
         @Override

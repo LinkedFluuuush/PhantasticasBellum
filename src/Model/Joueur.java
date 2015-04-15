@@ -21,7 +21,7 @@ public class Joueur {
 	private int nombreVictoire = 0;
         private Color couleur;
         
-        private static final Color couleurs[] = {new Color(0, 100, 255), Color.RED, Color.MAGENTA, Color.ORANGE};
+        private static final Color couleurs[] = {new Color(0, 130, 255), Color.RED, Color.MAGENTA, Color.ORANGE};
         private static int couleurIterateur = -1;
         
         private static Color getCouleurSuivante() {

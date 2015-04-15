@@ -19,4 +19,11 @@ public class Guerrier extends Personnage {
 		ajouterAttaque(new Sort("Baliste de feu", 6, 4, 4, new Matrice(new boolean[][]{{true}}), creatureType.TOUT, false));
 		ajouterAttaque(new Sort("Coup de jarnac", 1, 0, 4, new Matrice(new boolean[][]{{true}}), creatureType.TERRESTRE, true));
 	}
+        
+        @Override
+        public Object clone() {
+                Personnage clone = new Voleur();
+                clone.copier(this);
+                return clone;
+        }
 }

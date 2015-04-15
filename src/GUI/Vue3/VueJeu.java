@@ -29,12 +29,12 @@ import javax.swing.border.TitledBorder;
 
 public abstract class VueJeu extends JPanel{
 	protected AbstractControleurJeu controleur = null;
-	private Joueur joueurActuel = null;
+	protected Joueur joueurActuel = null;
         
-        private JPanel panelOuest = new JPanel();
-	private JPanel panelEst = new JPanel();
-	private JPanel panelCentre = new JPanel();
-	private JPanel panelSud = new JPanel();
+        protected JPanel panelOuest = new JPanel();
+	protected JPanel panelEst = new JPanel();
+	protected JPanel panelCentre = new JPanel();
+	protected JPanel panelSud = new JPanel();
 	
 	protected VueJoueur panelJoueur1 = null;
 	protected VueJoueur panelJoueur2 = null;
@@ -140,9 +140,7 @@ public abstract class VueJeu extends JPanel{
 	 * @param obj obj a ajouter au panel
 	 */
 	public void panelSudAdd(Object obj){
-		JScrollPane scroll = new JScrollPane((Component) obj);
-
-		panelSud.add(scroll);
+		panelSud.add((Component) obj);
 	}	
 	
 	/**

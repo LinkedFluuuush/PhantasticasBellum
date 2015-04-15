@@ -22,4 +22,11 @@ public class Magicien extends Personnage {
 		ajouterAttaque(new Sort("Enchevetrement de ronces", 0, 0, 4, new Matrice(new boolean[][]{{true}}), new Effet(2,1,0), creatureType.TOUT, false));
 		ajouterAttaque(new Sort("Terre marecageuse", 0, 0, -1, new Matrice(new boolean[][]{{true, true, true}, {true, true, true}, {true, true, true}}), new Effet(2,1,0), creatureType.TOUT, false));
 	}
+        
+        @Override
+        public Object clone() {
+                Personnage clone = new Voleur();
+                clone.copier(this);
+                return clone;
+        }
 }

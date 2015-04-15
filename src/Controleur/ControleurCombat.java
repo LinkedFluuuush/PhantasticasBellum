@@ -70,14 +70,15 @@ public class ControleurCombat extends AbstractControleurJeu {
                                     ((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixAttaque();
                                     attaque = false;
                                 }
-			}
-			
+			}			
 			
 			//empecher le choix d'un autre deplacement
 			((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixDeplacement();
 			
 			//Reset couleur plateau
 			getVue().getPanelPlateau().afficherPlateauParDefaut();
+                        
+                        majConsole(getPartie().getPersonnageActif() + " se déplace en " + maPosition + ".");
 			
 		} else if (getPartie().isAttaqueEnCours() && attaque){
 			//Sinon si attaque alors on attaque la case
@@ -94,13 +95,14 @@ public class ControleurCombat extends AbstractControleurJeu {
 
 			((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixAttaque();
 
+                        if (UNE_SEULE_ACTION_PAR_TOUR) {
+                            //empecher tout deplacement
+                            ((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixDeplacement();
+                            deplacement = false;
+                        }
+                        
 			//si attaque multiple
 			if (getAttaqueActif().isAttaqueMultiple()){
-                            if (UNE_SEULE_ACTION_PAR_TOUR) {
-                                //empecher tout deplacement
-                                ((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixDeplacement();
-                                deplacement = false;
-                            }
 				if (!coupsRestant){
 					attaque = false;
 				} else {
@@ -115,13 +117,13 @@ public class ControleurCombat extends AbstractControleurJeu {
 			
 			//Met a jour la console
 			if (resultatAttaque.isEmpty()){
-				majConsole(new JLabel("Attaque sans effet sur les personnages."));
+				majConsole("Attaque sans effet sur les personnages.");
 			}else{
 				for (String o : resultatAttaque){
 					if (attaque){
 						o += " 1 attaque restante.";
 					}
-					majConsole(new JLabel(o));
+					majConsole(o);
 				}
 			}
 		} else {
@@ -163,10 +165,10 @@ public class ControleurCombat extends AbstractControleurJeu {
 
 	/**
 	 * Affiche le label en parametre dans le panel sud
-	 * @param monLabel element a afficher
+	 * @param texte Texte a afficher
 	 */
-	public void majConsole(JLabel monLabel){
-		getVue().majConsole(monLabel);
+	public void majConsole(String texte){
+		getVue().majConsole(texte);
 	}
 	
 	/**
@@ -192,6 +194,10 @@ public class ControleurCombat extends AbstractControleurJeu {
 		
 		//Fixe l'etat passif
 		getPartie().setEtatTourPasser();
+                
+                if (attaque && deplacement) {
+                    majConsole(getPartie().getPersonnageActif() + " passe son tour.");
+                }
 		
 		//Passe au tour suivant
 		getControleurParent().tourSuivant();
@@ -225,7 +231,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 		}
 		
 		//Recuperer les positions des cases cible
-		List<Position> caseAccessible = mouvementPersonnage.getCasesAccessible(positionPersonnage);
+		List<Position> caseAccessible = mouvementPersonnage.getCasesAccessibles(positionPersonnage);
 
 		List<Position> caseAccessibleDispo = new ArrayList();
                 List<Position> caseInaccessibleDispo = getPartie().getToutesPositions();
@@ -264,7 +270,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 		if (porteeMax != - 1){
 			Matrice porteePersonnage = new Matrice(porteeMin, porteeMax, false);
 			
-			List<Position> caseAccessible = porteePersonnage.getCasesAccessible(positionPersonnage);
+			List<Position> caseAccessible = porteePersonnage.getCasesAccessibles(positionPersonnage);
                         List<Position> caseInaccessible = getPartie().getToutesPositions();
                         caseInaccessible.removeAll(caseAccessible);
 
@@ -318,7 +324,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 		Sort oA = getPartie().getAttaqueActif();
 		Matrice attaquePersonnage = oA.getZone();
 		
-		List<Position> caseAccessible = attaquePersonnage.getCasesAccessible(positionCase);
+		List<Position> caseAccessible = attaquePersonnage.getCasesAccessibles(positionCase);
 		
 		return caseAccessible;
 	}

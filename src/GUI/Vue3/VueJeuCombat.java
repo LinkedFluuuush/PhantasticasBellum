@@ -14,6 +14,10 @@ import Controleur.ControleurCombat;
 import GUI.Vue3.Plateau.*;
 import GUI.Vue3.Joueur.*;
 import Model.Joueur;
+import java.awt.FlowLayout;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import sun.security.pkcs11.wrapper.Constants;
 
 /**
  * 
@@ -21,7 +25,8 @@ import Model.Joueur;
  * @author Warlot/Gasquez
  */
 public class VueJeuCombat extends VueJeu {
-	private JPanel panelSud = null;
+    
+	static private ConsolePanel console = new ConsolePanel();
 	
 	/**
 	 * Constructeur
@@ -38,11 +43,10 @@ public class VueJeuCombat extends VueJeu {
 		this.panelJoueur1 = new VueJoueurCombat(getControleur(), listJoueurs.get(0));
 		this.panelJoueur2 = new VueJoueurCombat(getControleur(), listJoueurs.get(1));
 		this.panelPlateau = new VuePlateauCombat(getControleur(), joueurActuel, longueur, largeur);
-		this.panelSud = new JPanel();
 		
-		panelSud.setLayout(new BoxLayout(panelSud, BoxLayout.Y_AXIS));
+		console.setLayout(new BoxLayout(console, BoxLayout.Y_AXIS));
 		
-		panelSud.add(new JLabel("Console de jeu :"));
+//		console.add(new JLabel("Console de jeu :"));
 		
 		getPanelPlateau().addComponentListener(new ComponentAdapter() {
 			@Override
@@ -54,7 +58,7 @@ public class VueJeuCombat extends VueJeu {
 		panelOuestAdd(panelJoueur1);
 		panelEstAdd(panelJoueur2);
 		panelCenterAdd(panelPlateau);
-		panelSudAdd(panelSud);
+		panelSudAdd(console);
 		
 		getControleur().observePersonnages();
 		cacherJoueur();
@@ -65,11 +69,11 @@ public class VueJeuCombat extends VueJeu {
 	}
 
 	/**
-	 * Ajoute l'element monLabel dans la console dans la partie inferieur de l'application
-	 * @param monLabel element JLabel a afficher
+	 * Ajoute du texte dans la console de jeu
+	 * @param texte Texte a afficher
 	 */
-	public void majConsole(JLabel monLabel){
-		getPanelSud().add(monLabel);
+	public void majConsole(String texte){
+		console.add(texte);
 		getPanelSud().revalidate();
 	}
 	
@@ -112,16 +116,40 @@ public class VueJeuCombat extends VueJeu {
 		return (VuePlateauCombat) panelPlateau;
 	}
 	public JPanel getPanelSud() {
-		return panelSud;
+		return console;
 	}
 	
 	/****************** SETTERS ******************/
-	private void setPanelSud(JPanel panelSud) {
-		this.panelSud = panelSud;
+	private void setPanelSud(ConsolePanel panelSud) {
+		this.console = panelSud;
 	}
 	
 	@Override
 	public void setControleur(ControleurFenetre controleurParent){
 		this.controleur = new ControleurCombat(getMaVue(), controleurParent);
 	}
+}
+
+/**
+ * Classe qui represente la console de jeu
+ */
+class ConsolePanel extends JPanel {
+    protected JTextArea textArea;
+    protected JScrollPane scrollPane;
+    ConsolePanel() {
+        super();
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 4, 0));
+        panel.setMaximumSize(new Dimension(400, 200));
+        panel.add(new JLabel("Console de jeu :"));
+        add(panel);
+        textArea = new JTextArea();
+        scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        textArea.setEditable(false);
+        add(scrollPane);
+    }
+
+    void add(String text) {
+        textArea.append(text + Constants.NEWLINE);
+    }
 }

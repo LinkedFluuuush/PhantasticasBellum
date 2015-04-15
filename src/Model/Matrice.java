@@ -152,17 +152,31 @@ public class Matrice {
 	private int distanceEntreDeuxCases(int case1x, int case1y, int case2x, int case2y){
 		return Math.abs(case1x - case2x) + Math.abs(case1y - case2y);
 	}
+        
+        /**
+	 * liste les cases accessibles
+	 * @param maPosition position courante
+	 * @return collection de position de case
+	 */
+	public List<Position> getCasesAccessibles(Position maPosition){
+		return getCasesAccessibles(maPosition, new ArrayList());
+	}
 	
 	/**
 	 * liste les cases accessibles
 	 * @param maPosition position courante
 	 * @return collection de position de case
 	 */
-	public List<Position> getCasesAccessible(Position maPosition){
+	public List<Position> getCasesAccessibles(Position maPosition, List<Effet> effets){
 		List<Position> caseAccessible = new ArrayList<Position>();
 		
-		int ligneOffset = (getLigne() - 1) / 2;
-		int colonneffset = (getColonne() - 1) / 2;
+                int pmMalusCumules = 0;
+                for (Effet e : effets) {
+                    pmMalusCumules += e.getPmRetirer();
+                }
+                
+		int ligneOffset = ((getLigne() - 1) / 2 - pmMalusCumules);
+		int colonneffset = ((getColonne() - 1) / 2 - pmMalusCumules);
 		
 		for (int i = -ligneOffset; i <= ligneOffset; i += 1){
 			for (int j = -colonneffset; j <= colonneffset; j += 1){

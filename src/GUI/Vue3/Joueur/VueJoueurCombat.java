@@ -15,10 +15,7 @@ import Model.Sort;
 import Model.Joueur;
 import Model.Personnage;
 import Model.Personnage.creatureType;
-import java.awt.Color;
-import javax.swing.BorderFactory;
 import javax.swing.JSeparator;
-import javax.swing.border.Border;
 
 /**
  * 
@@ -292,7 +289,7 @@ class PanelPersonnageCaracteristique extends JPanel{
 }
 
 /**
- * Panel qui contient la listes des actions possibles du Personnage
+ * Panel qui contient la listes des actions possibles du personnage
  * @author Warlot/Gasquez
  *
  */
@@ -341,8 +338,8 @@ class PanelActionsNom extends JPanel{
 	}
 	
 	/**
-	 * affiche la listes des actions possibles par un Personnage 
-	 * @param monPersonnage Personnage dont on veux lister les actions possible
+	 * affiche la listes des actions possibles par un personnage 
+	 * @param monPersonnage personnage dont on veux lister les actions possible
 	 */
 	public void afficher(Personnage monPersonnage){
 		this.removeAll();

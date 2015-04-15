@@ -150,7 +150,19 @@ public class CasePlateau extends JPanel {
                 this.typeLabel.setText(personnage.getClasse());
                 this.nomLabel.setText(personnage.getNom());
                 this.imageLabel.setIcon(personnage.getVignette());
-                this.vieLabel.setText(personnage.getVie() + "/" + personnage.getMaxVie());
+                String vieStr = personnage.getVie() + "/" + personnage.getMaxVie();
+                if (personnage.isRalenti() || personnage.getBouclier() > 0) {
+                    if (personnage.isRalenti() && personnage.getBouclier() > 0) {
+                        vieStr += " [RB" + personnage.getBouclier() + "]";
+                    }
+                    else if (personnage.isRalenti()) {
+                        vieStr += " [R]";
+                    }
+                    else {
+                        vieStr += " [B" + personnage.getBouclier() + "]";
+                    }
+                }
+                this.vieLabel.setText(vieStr);
         }
 
     void nettoyerCase() {

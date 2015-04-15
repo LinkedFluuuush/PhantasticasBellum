@@ -20,4 +20,11 @@ public class Voleur extends Personnage {
 		ajouterAttaque(new Sort("Coup de jarnac", 1, 0, 4, new Matrice(new boolean[][]{{true}}), creatureType.TERRESTRE, true));
 		ajouterAttaque(new Sort("Fiole de poison", 2, 0, 2, new Matrice(new boolean[][]{{true}}), creatureType.TOUT, false));
 	}
+        
+        @Override
+        public Object clone() {
+                Personnage clone = new Voleur();
+                clone.copier(this);
+                return clone;
+        }
 }

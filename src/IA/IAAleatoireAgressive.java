@@ -33,8 +33,6 @@ public class IAAleatoireAgressive extends AbstractIA {
     protected boolean contientAttaque(Coup c) {
         for (Action a : c.getActions()) {
             if (a instanceof Attaque) {
-                System.out.println("Cible = " + ((Attaque) a).getCible().getProprio().getNom());
-                System.out.println("Auteur = " + this.getNom());
                 if (!((Attaque) a).getCible().getProprio().equals(this)) {
                     return true;
                 }
@@ -45,12 +43,18 @@ public class IAAleatoireAgressive extends AbstractIA {
 
     @Override
     public Coup getCoup(Partie p) {
-        System.out.println(Thread.currentThread().getName() + ": " + "-------- getCoup ---------");
+//        System.out.println(Thread.currentThread().getName() + ": " + "-------- getCoup ---------");
         List<Coup> coups = p.getTousCoups();
         List<Coup> attaques = new ArrayList();
         for (Coup c : coups) {
+//            System.out.println("Appliquer coup = " + c.toString());
+//            Partie cloneP = p.clone();
+//            cloneP.appliquerCoup(c);
+//            System.out.println(p + " et " + cloneP);
+//            System.out.println("Original =\n"+p.getJoueurActuel().getEquipe().toString());
+//            System.out.println("Clone = \n"+cloneP.getJoueurActuel().getEquipe().toString());
             if (contientAttaque(c)) {
-                System.out.println(Thread.currentThread().getName() + ": " + "Coup possible : " + c.toString());
+//                System.out.println(Thread.currentThread().getName() + ": " + "Coup possible : " + c.toString());
                 attaques.add(c);
             }
         }

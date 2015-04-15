@@ -21,4 +21,11 @@ public class Cavalier extends Personnage {
 		ajouterAttaque(new Sort("Enchevetrement de ronces", 0, 0, 4, new Matrice(new boolean[][]{{true}}), new Effet(2, 1, 0), creatureType.TOUT, false));
 		ajouterAttaque(new Sort("Nuage malefique", 3, 0, 2, new Matrice(new boolean[][]{{true}}), creatureType.TOUT, false));
 	}
+        
+        @Override
+        public Object clone() {
+                Personnage clone = new Voleur();
+                clone.copier(this);
+                return clone;
+        }
 }
