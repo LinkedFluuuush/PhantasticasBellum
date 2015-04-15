@@ -48,7 +48,7 @@ public class Gaens extends AbstractIA{
         int cout = coutCumuleActuel;
         Partie pClone = p.clone();
         pClone.appliquerCoup(c);
-        pClone.joueurSuivant();
+        pClone.tourSuivant();
 
         if(pClone.getJoueurActuel() instanceof Gaens) { //Noeud Max
             cout = cout + hc.getHeuristique(c);
