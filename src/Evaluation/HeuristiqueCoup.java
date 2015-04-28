@@ -29,6 +29,7 @@ public class HeuristiqueCoup {
 					
 					//Si le personnage appartient au joueur spécifié
 					if(nom==nomJoueur){
+					
 						valeur-=s.getDegat();
 					} else {
 						valeur+=s.getDegat();
@@ -36,6 +37,7 @@ public class HeuristiqueCoup {
 				}
 			}
 		}
+
 		System.out.print("v: "+valeur );
 		return valeur;
 	}
