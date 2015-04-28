@@ -4,6 +4,7 @@ import Controleur.Partie;
 import Evaluation.HeuristiqueCoup;
 import Model.Coup;
 
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,9 +28,13 @@ public class Gaens extends AbstractIA{
 
     private Coup alphaBeta(int alpha, int beta, Partie p){
         int alphaTmp;
+
+        List<Coup> tousCoups = p.getTousCoups();
+        memoriseCoup(tousCoups.get(0));
        
         for(Coup c : p.getTousCoups()){
             alphaTmp = alphaBetaVal(c, p, 2, 0, 0, alpha, beta);
+
             if(alphaTmp > alpha){
                 alpha = alphaTmp;
                 memoriseCoup(c);
@@ -55,7 +60,7 @@ public class Gaens extends AbstractIA{
             cout = cout + HeuristiqueCoup.getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
-//                System.out.println("Cout de la branche : " + cout);
+                System.out.println("Cout de la branche : " + cout);
                 return cout;
             }
 
