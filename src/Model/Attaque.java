@@ -1,6 +1,7 @@
 package Model;
 
 import Controleur.Partie;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +56,14 @@ public class Attaque implements Action {
      */
     public Personnage getCible() {
         return cibles.get(0);
+    }
+    
+    /**
+     * Renvoie la liste de personnages vises
+     * @return des personnages
+     */
+    public List<Personnage> getCibles() {
+        return cibles;
     }
     
     /**

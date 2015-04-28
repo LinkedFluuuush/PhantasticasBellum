@@ -21,21 +21,22 @@ public class HeuristiqueCoup {
 				Attaque a = (Attaque) action;
 				
 				Sort s = a.getSort();
-				Personnage cible = a.getCible(); //getCibles retourne List<Personnage>
+				List<Personnage> cibles = a.getCibles(); //getCibles retourne List<Personnage>
 				
-
-				String nom = cible.getProprio().getNom();
-				String nomJoueur = c.getAuteur().getProprio().getNom();
-				
-				//Si le personnage appartient au joueur spï¿½cifiï¿½
-				if(nom==c.getAuteur().getProprio().getNom()){
-					valeur-=s.getDegat();
-				} else {
-					valeur+=s.getDegat();
+				for(Personnage cible : cibles) {
+					String nom = cible.getProprio().getNom();
+					String nomJoueur = c.getAuteur().getProprio().getNom();
+					
+					//Si le personnage appartient au joueur spécifié
+					if(nom==c.getAuteur().getProprio().getNom()){
+						valeur-=s.getDegat();
+					} else {
+						valeur+=s.getDegat();
+					}
 				}
 			}
 		}
-
+		System.out.println("Valeur : "+valeur);
 		return valeur;
 	}
 	
