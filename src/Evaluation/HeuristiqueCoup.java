@@ -9,8 +9,8 @@ import Model.Personnage;
 import Model.Sort;
 
 public class HeuristiqueCoup {
-
 	public static int getHeuristique(Coup c) {
+		
 		int valeur=0;
 		List<Action> actions = c.getActions();
 		
@@ -28,7 +28,7 @@ public class HeuristiqueCoup {
 					String nomJoueur = c.getAuteur().getProprio().getNom();
 					
 					//Si le personnage appartient au joueur spécifié
-					if(nom==c.getAuteur().getProprio().getNom()){
+					if(nom==nomJoueur){
 						valeur-=s.getDegat();
 					} else {
 						valeur+=s.getDegat();
@@ -36,7 +36,7 @@ public class HeuristiqueCoup {
 				}
 			}
 		}
-		System.out.println("Valeur : "+valeur);
+		System.out.print("v: "+valeur );
 		return valeur;
 	}
 	
