@@ -1,20 +1,25 @@
 package IA;
 
-import Controleur.Partie;
-import Evaluation.HeuristiqueCoup;
-import Model.Coup;
-
 import java.util.List;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import Controleur.Partie;
+import Model.Action;
+import Model.Attaque;
+import Model.Coup;
+import Model.Joueur;
+import Model.Personnage;
+import Model.Sort;
 
 /**
  * Created by Jean-Baptiste Louvet on 11/03/15.
  */
 public class Gaens extends AbstractIA{
+	
+	static int idGaens = 0;
+	
     public Gaens(){
-        super("Gaens");
+    	super("Gaens" + (idGaens==0?"":"_"+idGaens));
+    	idGaens++;
     }
 
     @Override
@@ -34,7 +39,6 @@ public class Gaens extends AbstractIA{
        
         for(Coup c : p.getTousCoups()){
             alphaTmp = alphaBetaVal(c, p, 2, 0, 0, alpha, beta);
-
             if(alphaTmp > alpha){
                 alpha = alphaTmp;
                 memoriseCoup(c);
@@ -42,7 +46,7 @@ public class Gaens extends AbstractIA{
         }
 
         System.out.println(getCoupMemorise().getAuteur().getProprio().getNom() + ": " + "Coup choisi = " + getCoupMemorise().toString());
-        System.out.println("Heuristique du coup : " + HeuristiqueCoup.getHeuristique(getCoupMemorise()));
+        System.out.println("Heuristique du coup : " + alpha);
 
         return getCoupMemorise();
     }
@@ -55,9 +59,9 @@ public class Gaens extends AbstractIA{
        
         pClone.appliquerCoup(c);
         pClone.tourSuivant();
-
-        if(pClone.getJoueurActuel() instanceof Gaens) { //Noeud Max
-            cout = cout + HeuristiqueCoup.getHeuristique(c);
+        Joueur j = pClone.getJoueurActuel();
+        if(j instanceof Gaens && j.getNom() == this.getNom()) { //Noeud Max
+            cout = cout + getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
                 System.out.println("Cout de la branche : " + cout);
@@ -67,15 +71,16 @@ public class Gaens extends AbstractIA{
             alphaTemp = -9999;
             for(Coup nCoup : pClone.getTousCoups()){
                 val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta);
-                alphaTemp = Math.max(alphaTemp, val);
-
-                if(alphaTemp >= beta){
+               
+                if(val >= beta){
                     return alphaTemp;
+                } else {
+                	alphaTemp = Math.max(alphaTemp, val);
                 }
             }
             return alphaTemp;
         } else { //Noeud Min
-            cout = cout - HeuristiqueCoup.getHeuristique(c);
+            cout = cout - getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
 //                System.out.println("Cout de la branche : " + cout);
@@ -85,13 +90,48 @@ public class Gaens extends AbstractIA{
             betaTemp = 9999;
             for (Coup nCoup : pClone.getTousCoups()) {
                 val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp));
-                betaTemp = Math.min(betaTemp, val);
-
-                if (betaTemp <= alpha) {
+                
+                if (val <= alpha) {
                     return betaTemp;
+                } else {
+                	betaTemp = Math.min(betaTemp, val);
                 }
             }
             return betaTemp;
         }
     }
+    
+    public int getHeuristique(Coup c) {
+		
+		int valeur=0;
+		List<Action> actions = c.getActions();
+		
+		//Pour toutes les actions
+		for(Action action : actions) {
+			//Pour toutes les attaques
+			if(action instanceof Attaque) {
+				Attaque a = (Attaque) action;
+				
+				Sort s = a.getSort();
+				List<Personnage> cibles = a.getPersonnagesAttaques(); //getCibles retourne List<Personnage>
+				
+				for(Personnage cible : cibles) {
+					Joueur nom = cible.getProprio();
+					Joueur nomJoueur = c.getAuteur().getProprio();
+					
+					if(cible.getType() == s.getTypeCible()){
+						//Si le personnage appartient au joueur spécifié
+						if(nom==nomJoueur){
+							valeur-=s.getDegat();
+						} else {
+							valeur+=s.getDegat();
+						}
+					}
+				}
+			}
+		}
+
+		//System.out.println("v: "+valeur );
+		return valeur;
+	}
 }
