@@ -29,7 +29,7 @@ public class Gaens extends AbstractIA{
         int alphaTmp;
        
         for(Coup c : p.getTousCoups()){
-            alphaTmp = alphaBetaVal(c, p, 3, 0, 0, alpha, beta);
+            alphaTmp = alphaBetaVal(c, p, 2, 0, 0, alpha, beta);
             if(alphaTmp > alpha){
                 alpha = alphaTmp;
                 memoriseCoup(c);
