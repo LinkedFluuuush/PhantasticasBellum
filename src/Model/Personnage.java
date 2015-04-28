@@ -92,6 +92,7 @@ public abstract class Personnage extends Observable implements Cloneable{
 		this.dejaJoue = perso.dejaJoue;
                 this.position = (Position) perso.position.clone();
 		this.type = perso.type;
+                this.proprio = perso.proprio;
                 
 		//Clone les dependances (objets) non immuables (types primitifs non inclus)
 		//Les attaques sont identiques pour tous les Personnage, pas de clonnage

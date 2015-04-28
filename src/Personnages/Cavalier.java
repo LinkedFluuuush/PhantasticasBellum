@@ -24,7 +24,7 @@ public class Cavalier extends Personnage {
         
         @Override
         public Object clone() {
-                Personnage clone = new Voleur();
+                Personnage clone = new Cavalier();
                 clone.copier(this);
                 return clone;
         }

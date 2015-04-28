@@ -22,7 +22,7 @@ public class Guerrier extends Personnage {
         
         @Override
         public Object clone() {
-                Personnage clone = new Voleur();
+                Personnage clone = new Guerrier();
                 clone.copier(this);
                 return clone;
         }
