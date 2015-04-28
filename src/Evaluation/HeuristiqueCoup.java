@@ -27,7 +27,7 @@ public class HeuristiqueCoup {
 					String nom = cible.getProprio().getNom();
 					String nomJoueur = c.getAuteur().getProprio().getNom();
 					
-					//Si le personnage appartient au joueur spécifié
+					//Si le personnage appartient au joueur spï¿½cifiï¿½
 					if(nom==c.getAuteur().getProprio().getNom()){
 						valeur-=s.getDegat();
 					} else {
@@ -36,7 +36,7 @@ public class HeuristiqueCoup {
 				}
 			}
 		}
-		System.out.println("Valeur : "+valeur);
+//		System.out.println("Valeur : "+valeur);
 		return valeur;
 	}
 	
