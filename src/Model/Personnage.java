@@ -103,8 +103,8 @@ public abstract class Personnage extends Observable implements Cloneable{
 	}
         
         /**
-	 * Teste l'égalité entre deux personnages
-         * @return Vrai si les personnages sont équivalents
+	 * Teste l'ï¿½galitï¿½ entre deux personnages
+         * @return Vrai si les personnages sont ï¿½quivalents
 	 */
 	public boolean equals(Object obj){
 		if (obj == this){
