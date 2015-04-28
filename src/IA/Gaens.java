@@ -51,6 +51,7 @@ public class Gaens extends AbstractIA{
         int profActuelleTemp = profActuelle + 1;
         int cout = coutCumuleActuel;
         Partie pClone = p.clone();
+       
         pClone.appliquerCoup(c);
         pClone.tourSuivant();
 
