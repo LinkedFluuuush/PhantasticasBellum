@@ -25,7 +25,7 @@ public class Magicien extends Personnage {
         
         @Override
         public Object clone() {
-                Personnage clone = new Voleur();
+                Personnage clone = new Magicien();
                 clone.copier(this);
                 return clone;
         }
