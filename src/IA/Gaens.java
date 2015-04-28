@@ -27,9 +27,9 @@ public class Gaens extends AbstractIA{
 
     private Coup alphaBeta(int alpha, int beta, Partie p){
         int alphaTmp;
-        HeuristiqueCoup hc = new HeuristiqueCoup();
+       
         for(Coup c : p.getTousCoups()){
-            alphaTmp = alphaBetaVal(c, p, 3, 0, 0, alpha, beta, hc);
+            alphaTmp = alphaBetaVal(c, p, 3, 0, 0, alpha, beta);
             if(alphaTmp > alpha){
                 alpha = alphaTmp;
                 memoriseCoup(c);
@@ -37,12 +37,12 @@ public class Gaens extends AbstractIA{
         }
 
         System.out.println(getCoupMemorise().getAuteur().getProprio().getNom() + ": " + "Coup choisi = " + getCoupMemorise().toString());
-        System.out.println("Heuristique du coup : " + hc.getHeuristique(getCoupMemorise()));
+        System.out.println("Heuristique du coup : " + HeuristiqueCoup.getHeuristique(getCoupMemorise()));
 
         return getCoupMemorise();
     }
 
-    private int alphaBetaVal(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta, HeuristiqueCoup hc) {
+    private int alphaBetaVal(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta) {
         int alphaTemp, betaTemp, val;
         int profActuelleTemp = profActuelle + 1;
         int cout = coutCumuleActuel;
@@ -51,7 +51,7 @@ public class Gaens extends AbstractIA{
         pClone.tourSuivant();
 
         if(pClone.getJoueurActuel() instanceof Gaens) { //Noeud Max
-            cout = cout + hc.getHeuristique(c);
+            cout = cout + HeuristiqueCoup.getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
 //                System.out.println("Cout de la branche : " + cout);
@@ -60,7 +60,7 @@ public class Gaens extends AbstractIA{
 
             alphaTemp = -9999;
             for(Coup nCoup : pClone.getTousCoups()){
-                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta, hc);
+                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta);
                 alphaTemp = Math.max(alphaTemp, val);
 
                 if(alphaTemp >= beta){
@@ -69,7 +69,7 @@ public class Gaens extends AbstractIA{
             }
             return alphaTemp;
         } else { //Noeud Min
-            cout = cout - hc.getHeuristique(c);
+            cout = cout - HeuristiqueCoup.getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
 //                System.out.println("Cout de la branche : " + cout);
@@ -78,7 +78,7 @@ public class Gaens extends AbstractIA{
 
             betaTemp = 9999;
             for (Coup nCoup : pClone.getTousCoups()) {
-                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp), hc);
+                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp));
                 betaTemp = Math.min(betaTemp, val);
 
                 if (betaTemp <= alpha) {

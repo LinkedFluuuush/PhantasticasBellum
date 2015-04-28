@@ -10,7 +10,7 @@ import Model.Sort;
 
 public class HeuristiqueCoup {
 
-	public int getHeuristique(Coup c) {
+	public static int getHeuristique(Coup c) {
 		int valeur=0;
 		List<Action> actions = c.getActions();
 		
