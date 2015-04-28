@@ -59,14 +59,6 @@ public class Attaque implements Action {
     }
     
     /**
-     * Renvoie la liste de personnages vises
-     * @return des personnages
-     */
-    public List<Personnage> getCibles() {
-        return cibles;
-    }
-    
-    /**
      * Renvoie la liste des personnages qui seront attaques lors de l'attaque
      * @return une liste de personnages
      */

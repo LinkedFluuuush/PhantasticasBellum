@@ -21,7 +21,7 @@ public class HeuristiqueCoup {
 				Attaque a = (Attaque) action;
 				
 				Sort s = a.getSort();
-				List<Personnage> cibles = a.getCibles(); //getCibles retourne List<Personnage>
+				List<Personnage> cibles = a.getPersonnagesAttaques(); //getCibles retourne List<Personnage>
 				
 				for(Personnage cible : cibles) {
 					String nom = cible.getProprio().getNom();
