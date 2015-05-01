@@ -32,13 +32,24 @@ public class Gaens extends AbstractIA{
     }*/
 
     private Coup alphaBeta(int alpha, int beta, Partie p){
-        int alphaTmp;
+        int alphaTmp, valMax = 0;
 
         List<Coup> tousCoups = p.getTousCoups();
-        memoriseCoup(tousCoups.get(0));
-       
-        for(Coup c : p.getTousCoups()){
+
+        for(Coup c : tousCoups) {
+            alphaTmp = getHeuristique(c);
+            if (alphaTmp > valMax) {
+                valMax = alphaTmp;
+                memoriseCoup(c);
+            }
+        }
+
+        for(Coup c : tousCoups){
             alphaTmp = alphaBetaVal(c, p, 2, 0, 0, alpha, beta);
+
+//            System.out.print('\t' + getCoupMemorise().getAuteur().getProprio().getNom() + ": " + "Coup choisi = " + getCoupMemorise().toString());
+//            System.out.println("\t\t --- Heuristique du coup : " + alpha);
+
             if(alphaTmp > alpha){
                 alpha = alphaTmp;
                 memoriseCoup(c);
@@ -51,6 +62,66 @@ public class Gaens extends AbstractIA{
         return getCoupMemorise();
     }
 
+    private int miniMax(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta) {
+        int val = 0, valMax = 0;
+        int profActuelleTemp = profActuelle + 1;
+        int cout = coutCumuleActuel;
+        Partie pClone = p.clone();
+
+        pClone.appliquerCoup(c);
+        pClone.tourSuivant();
+        Joueur j = pClone.getJoueurActuel();
+
+        if (j instanceof Gaens && j.getNom() == this.getNom()) { //Noeud Min : Si c'est Gaens le joueur actuel, alors le coup a été joué par l'adversaire (changement de tour)
+            cout = cout - getHeuristique(c);
+
+            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
+                //System.out.println("Cout de la branche : " + cout);
+                return cout;
+            }
+
+            for(Coup nCoup : pClone.getTousCoups()){
+                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha /*Math.max(alpha, alphaTemp)*/, beta);
+
+                /*if(val >= beta){
+                    return alphaTemp;
+                } else {
+                    alphaTemp = Math.max(alphaTemp, val);
+                }*/
+
+                if(val > valMax){
+                    valMax = val;
+                }
+            }
+
+            return valMax;
+
+        } else { //Noeud Max : Si ce n'est pas Gaens le joueur actuel, alors le coup a été joué par Gaens (changement de tour)
+            cout = cout + getHeuristique(c);
+
+            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
+                //System.out.println("Cout de la branche : " + cout);
+                return cout;
+            }
+
+            for (Coup nCoup : pClone.getTousCoups()) {
+                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha /*Math.max(alpha, alphaTemp)*/, beta);
+
+                /*if(val >= beta){
+                    return alphaTemp;
+                } else {
+                    alphaTemp = Math.max(alphaTemp, val);
+                }*/
+
+                if(val > valMax){
+                    valMax = val;
+                }
+            }
+
+            return valMax;
+        }
+    }
+
     private int alphaBetaVal(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta) {
         int alphaTemp, betaTemp, val;
         int profActuelleTemp = profActuelle + 1;
@@ -60,26 +131,7 @@ public class Gaens extends AbstractIA{
         pClone.appliquerCoup(c);
         pClone.tourSuivant();
         Joueur j = pClone.getJoueurActuel();
-        if(j instanceof Gaens && j.getNom() == this.getNom()) { //Noeud Max
-            cout = cout + getHeuristique(c);
-
-            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
-                System.out.println("Cout de la branche : " + cout);
-                return cout;
-            }
-
-            alphaTemp = -9999;
-            for(Coup nCoup : pClone.getTousCoups()){
-                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta);
-               
-                if(val >= beta){
-                    return alphaTemp;
-                } else {
-                	alphaTemp = Math.max(alphaTemp, val);
-                }
-            }
-            return alphaTemp;
-        } else { //Noeud Min
+        if(j instanceof Gaens && j.getNom() == this.getNom()) { //Noeud Min : Si c'est Gaens le joueur actuel, alors le coup a été joué par l'adversaire (changement de tour)
             cout = cout - getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
@@ -90,14 +142,33 @@ public class Gaens extends AbstractIA{
             betaTemp = 9999;
             for (Coup nCoup : pClone.getTousCoups()) {
                 val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp));
-                
+
                 if (val <= alpha) {
                     return betaTemp;
                 } else {
-                	betaTemp = Math.min(betaTemp, val);
+                    betaTemp = Math.min(betaTemp, val);
                 }
             }
             return betaTemp;
+        } else { //Noeud Max : Si ce n'est pas Gaens le joueur actuel, alors le coup a été joué par Gaens (changement de tour)
+            cout = cout + getHeuristique(c);
+
+            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
+                //System.out.println("Cout de la branche : " + cout);
+                return cout;
+            }
+
+            alphaTemp = -9999;
+            for(Coup nCoup : pClone.getTousCoups()){
+                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta);
+
+                if(val >= beta){
+                    return alphaTemp;
+                } else {
+                    alphaTemp = Math.max(alphaTemp, val);
+                }
+            }
+            return alphaTemp;
         }
     }
     
@@ -120,7 +191,7 @@ public class Gaens extends AbstractIA{
 					Joueur nomJoueur = c.getAuteur().getProprio();
 					
 					if(cible.getType() == s.getTypeCible()){
-						//Si le personnage appartient au joueur sp�cifi�
+						//Si le personnage appartient au joueur sp�cifi�
 						if(nom==nomJoueur){
 							valeur-=s.getDegat();
 						} else {
