@@ -1,14 +1,19 @@
 package IA;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import Controleur.Partie;
 import Model.Action;
 import Model.Attaque;
 import Model.Coup;
+import Model.Deplacement;
 import Model.Joueur;
 import Model.Personnage;
+import Model.Position;
 import Model.Sort;
+import Personnages.Magicien;
 
 /**
  * Created by Jean-Baptiste Louvet and Matthieu Biache on 11/03/15.
@@ -16,7 +21,14 @@ import Model.Sort;
 public class Gaens extends AbstractIA{
 	
 	static int idGaens = 0;
+	int profondeur=4;
 	
+    public Gaens(int _profondeur){
+    	super("Gaens" + (idGaens==0?"":"_"+idGaens));
+    	idGaens++;
+    	profondeur=_profondeur;
+    }
+    
     public Gaens(){
     	super("Gaens" + (idGaens==0?"":"_"+idGaens));
     	idGaens++;
@@ -24,113 +36,114 @@ public class Gaens extends AbstractIA{
 
     @Override
     public Coup getCoup(Partie p) {
-        return alphaBeta(-9999, 9999, p);
-    }
-
-    /*public int getHeuristique(Coup c) {
-        return 0;
-    }*/
-
-    private Coup alphaBeta(int alpha, int beta, Partie p){
-        int alphaTmp, valMax = 0;
-
-        List<Coup> tousCoups = p.getTousCoups();
-
-        for(Coup c : tousCoups) {
-            alphaTmp = getHeuristique(c);
-            if (alphaTmp > valMax) {
-                valMax = alphaTmp;
-                memoriseCoup(c);
-            }
-        }
-
-        for(Coup c : tousCoups){
-            alphaTmp = alphaBetaVal(c, p, 2, 0, 0, alpha, beta);
-
-//            System.out.print('\t' + getCoupMemorise().getAuteur().getProprio().getNom() + ": " + "Coup choisi = " + getCoupMemorise().toString());
-//            System.out.println("\t\t --- Heuristique du coup : " + alpha);
-
-            if(alphaTmp > alpha){
-                alpha = alphaTmp;
-                memoriseCoup(c);
-            }
-        }
-
-        System.out.println(getCoupMemorise().getAuteur().getProprio().getNom() + ": " + "Coup choisi = " + getCoupMemorise().toString());
-        System.out.println("Heuristique du coup : " + alpha);
-
+    	memoriseCoup(null);
+    	alphaBeta(-9999, 9999, p);
         return getCoupMemorise();
     }
 
-    private int miniMax(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta) {
-        int val = 0, valMax = 0;
-        int profActuelleTemp = profActuelle + 1;
-        int cout = coutCumuleActuel;
-        Partie pClone = p.clone();
-
-        pClone.appliquerCoup(c);
-        pClone.tourSuivant();
-        Joueur j = pClone.getJoueurActuel();
-
-        if (j instanceof Gaens && j.getNom() == this.getNom()) { //Noeud Min : Si c'est Gaens le joueur actuel, alors le coup a été joué par l'adversaire (changement de tour)
-            cout = cout - getHeuristique(c);
-
-            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
-                //System.out.println("Cout de la branche : " + cout);
-                return cout;
+    public synchronized List<Coup> getTousCoups(Partie partie) {
+        List<Coup> tousCoups = new ArrayList<Coup>();
+        
+        // Calculer toutes les cases libres
+        List<Position> casesLibres = partie.getToutesPositions();
+        for (Personnage perso : partie.listerEquipes()) {
+            casesLibres.remove(perso.getPosition());
+        }
+        
+        List<Personnage> tousPersonnages = partie.listerEquipes();
+       for (Personnage pf : partie.getJoueurActuel().listerEquipe()) {
+           if (pf.estVivant() && !pf.isDejaJoue()) {
+               tousCoups.addAll(getTousCoupsPersonnage(partie,pf, casesLibres, tousPersonnages));
             }
-
-            for(Coup nCoup : pClone.getTousCoups()){
-                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha /*Math.max(alpha, alphaTemp)*/, beta);
-
-                /*if(val >= beta){
-                    return alphaTemp;
-                } else {
-                    alphaTemp = Math.max(alphaTemp, val);
-                }*/
-
-                if(val > valMax){
-                    valMax = val;
+        }
+       return tousCoups;
+    }
+    
+    private Collection<? extends Coup> getTousCoupsPersonnage(Partie partie,
+			Personnage pf, List<Position> casesLibres,
+			List<Personnage> tousPersonnages) {
+    	List<Coup> coups = new ArrayList<Coup>();
+    	
+    	if(!pf.isDejaJoue()) {
+            // Coup nul
+            coups.add(new Coup(pf, new ArrayList<Action>()));
+            
+            // Deplacements seuls
+            List<Deplacement> deplacementsTheoriques = pf.getDeplacements();
+            for (Deplacement d : deplacementsTheoriques) {
+            	if (partie.isCaseValide(d.getDestination()) && casesLibres.contains(d.getDestination())) {
+                    coups.add(new Coup(pf, d));
                 }
             }
+            
+            // Attaques seules
+            for (Sort sort : pf.getAttaques()) {
+                // Tester si chaque personnage est atteignable
+                for (Personnage cible : tousPersonnages) {
+                    // Si le personnage est atteignable et en vie
+                    if (sort.peutAtteindre(pf.getPosition(), cible.getPosition()) && cible.estVivant() && (cible.getType() == sort.getTypeCible())) {
 
-            return valMax;
-
-        } else { //Noeud Max : Si ce n'est pas Gaens le joueur actuel, alors le coup a été joué par Gaens (changement de tour)
-            cout = cout + getHeuristique(c);
-
-            if (pClone.estTerminee() || profActuelleTemp >= profMax) {
-                //System.out.println("Cout de la branche : " + cout);
-                return cout;
-            }
-
-            for (Coup nCoup : pClone.getTousCoups()) {
-                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha /*Math.max(alpha, alphaTemp)*/, beta);
-
-                /*if(val >= beta){
-                    return alphaTemp;
-                } else {
-                    alphaTemp = Math.max(alphaTemp, val);
-                }*/
-
-                if(val > valMax){
-                    valMax = val;
+                        // Construire la liste des cases ciblees avec le personnage cible comme centre
+                        List<Position> casesCiblees = sort.getZone().getCasesAccessibles(cible.getPosition());
+                        casesCiblees.removeAll(casesLibres);
+                        
+                        // Chercher les personnages sur ces cases
+                        List<Personnage> cibles = new ArrayList<Personnage>();
+                        cibles.add(cible);
+                        
+                        for (Personnage cibleCollaterale : tousPersonnages) {
+                            if (cibleCollaterale != cible  && cibleCollaterale.estVivant() && (cibleCollaterale.getType() == sort.getTypeCible())) {
+                                if (casesCiblees.contains(cibleCollaterale.getPosition())) {
+                                   cibles.add(cibleCollaterale);
+                                }
+                            }
+                        }
+                        
+                        // Construire le coup correspondant
+                        coups.add(new Coup(pf, new Attaque(sort, cibles)));
+                   }
                 }
             }
+    	}
+    	
+		return coups;
+	}
 
-            return valMax;
+	private void alphaBeta(int alpha, int beta, Partie p){
+        int alphaTmp, valMax = 0;
+
+        List<Coup> tousCoups = getTousCoups(p);
+
+        for(Coup c : tousCoups) {
+        	if(!c.getAuteur().isDejaJoue()) {
+        		alphaTmp = getHeuristique(c);
+                if (alphaTmp > valMax) {
+                    valMax = alphaTmp;
+                    memoriseCoup(c);
+                }
+        	}
+        }
+
+        for(Coup c : tousCoups) {
+        	if(!c.getAuteur().isDejaJoue()) {
+	            alphaTmp = alphaBetaVal(c, p, profondeur, 0, 0, alpha, beta);
+	
+	            if(alphaTmp > alpha){
+	                alpha = alphaTmp;
+	                memoriseCoup(c);
+	            }
+        	}
         }
     }
 
-    private int alphaBetaVal(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta) {
-        int alphaTemp, betaTemp, val;
+     private int alphaBetaVal(Coup c, Partie p, int profMax, int profActuelle, int coutCumuleActuel, int alpha, int beta) {
+        int val,alphaTemp,betaTemp;
         int profActuelleTemp = profActuelle + 1;
         int cout = coutCumuleActuel;
         Partie pClone = p.clone();
        
         pClone.appliquerCoup(c);
         pClone.tourSuivant();
-      
         Joueur j = pClone.getJoueurActuel();
         if(j instanceof Gaens && j.getNom() == this.getNom()) { //Noeud Min : Si c'est Gaens le joueur actuel, alors le coup a été joué par l'adversaire (changement de tour)
             cout = cout - getHeuristique(c);
@@ -141,14 +154,16 @@ public class Gaens extends AbstractIA{
             }
 
             betaTemp = 9999;
-            for (Coup nCoup : pClone.getTousCoups()) {
-                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp));
+            for (Coup nCoup : getTousCoups(pClone)) {
+            	if(!nCoup.getAuteur().isDejaJoue()) {
+            		val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp));
 
-                if (val <= alpha) {
-                    return betaTemp;
-                } else {
-                    betaTemp = Math.min(betaTemp, val);
-                }
+                    if (val <= alpha) {
+                        return betaTemp;
+                    } else {
+                        betaTemp = Math.min(betaTemp, val);
+                    }
+            	} 
             }
             return betaTemp;
         } else { //Noeud Max : Si ce n'est pas Gaens le joueur actuel, alors le coup a été joué par Gaens (changement de tour)
@@ -160,14 +175,17 @@ public class Gaens extends AbstractIA{
             }
 
             alphaTemp = -9999;
-            for(Coup nCoup : pClone.getTousCoups()){
-                val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta);
+            for(Coup nCoup : getTousCoups(pClone)){
+            	if(!nCoup.getAuteur().isDejaJoue()) {
+            		val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta);
 
-                if(val >= beta){
-                    return alphaTemp;
-                } else {
-                    alphaTemp = Math.max(alphaTemp, val);
-                }
+                    if(val >= beta){
+                        return alphaTemp;
+                    } else {
+                        alphaTemp = Math.max(alphaTemp, val);
+                    }
+            	}
+                
             }
             return alphaTemp;
         }
@@ -177,34 +195,47 @@ public class Gaens extends AbstractIA{
 		
 		int valeur=0;
 		List<Action> actions = c.getActions();
+		Boolean flagAttaque=false;
 		
 		//Pour toutes les actions
 		for(Action action : actions) {
 			//Pour toutes les attaques
 			if(action instanceof Attaque) {
+				flagAttaque=true;
 				Attaque a = (Attaque) action;
 				
 				Sort s = a.getSort();
 				List<Personnage> cibles = a.getPersonnagesAttaques(); //getCibles retourne List<Personnage>
 				
 				for(Personnage cible : cibles) {
-					if(cible.getVie() >0) {
+					if(cible.estVivant()) {
+						
 						Joueur nom = cible.getProprio();
 						Joueur nomJoueur = c.getAuteur().getProprio();
 						if(cible.getType() == s.getTypeCible()){
+							int vTemp;
+							
+							if(cible instanceof Magicien) {
+								vTemp=10;
+							} else {
+								vTemp=s.getDegat();
+							}
 							//Si le personnage appartient au joueur sp�cifi�
 							if(nom==nomJoueur){
-								valeur-=s.getDegat();
+								valeur-=vTemp;
 							} else {
-								valeur+=s.getDegat();
+								valeur+=vTemp;
 							}
 						}
 					}
 				}
 			}
 		}
-
-		//System.out.println("v: "+valeur );
+		
+		if(flagAttaque && valeur==0) {
+			valeur=-9999;
+		}
+		
 		return valeur;
 	}
 }
