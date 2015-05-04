@@ -1,17 +1,22 @@
 
-import Controleur.ControleurPlacement;
-import Controleur.Partie;
-import Exception.ExceptionPersonnage;
-import Exception.ExceptionParamJeu;
-import GUI.Fenetre;
-import IA.*;
-import Model.Joueur;
-import Model.Personnage;
-import Model.Position;
 import static java.lang.Math.random;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import Controleur.ControleurPlacement;
+import Controleur.Partie;
+import Exception.ExceptionParamJeu;
+import Exception.ExceptionPersonnage;
+import GUI.Fenetre;
+import IA.Gaens;
+import IA.IAAleatoire;
+import IA.IAAleatoireAgressive;
+import IA.NewGaens;
+import Model.Joueur;
+import Model.Personnage;
+import Model.Position;
 
 
 /**
@@ -58,10 +63,10 @@ public class PhantasticasBellumIAMain {
         // Initialise chaque joueur
 //        Joueur j1 = new Joueur("Joueur 1");
 //        Joueur j1 = new IAAleatoire("Aleatoire 1");
-        Joueur j1 = new Gaens();
+        Joueur j1 = new NewGaens(5);
 //        Joueur j2 = new IAAleatoire("Aleatoire 2");
 //        Joueur j1 = new IAAleatoireAgressive("Aleatoire 1");
-        Joueur j2 = new Gaens();
+        Joueur j2 = new NewGaens(10);
 
         Fenetre fenetre = new Fenetre();
         Partie maPartie = new Partie(false, j1, j2);

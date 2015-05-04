@@ -11,7 +11,7 @@ import Model.Personnage;
 import Model.Sort;
 
 /**
- * Created by Jean-Baptiste Louvet on 11/03/15.
+ * Created by Jean-Baptiste Louvet and Matthieu Biache on 11/03/15.
  */
 public class Gaens extends AbstractIA{
 	
@@ -130,6 +130,7 @@ public class Gaens extends AbstractIA{
        
         pClone.appliquerCoup(c);
         pClone.tourSuivant();
+      
         Joueur j = pClone.getJoueurActuel();
         if(j instanceof Gaens && j.getNom() == this.getNom()) { //Noeud Min : Si c'est Gaens le joueur actuel, alors le coup a Ã©tÃ© jouÃ© par l'adversaire (changement de tour)
             cout = cout - getHeuristique(c);
@@ -187,15 +188,16 @@ public class Gaens extends AbstractIA{
 				List<Personnage> cibles = a.getPersonnagesAttaques(); //getCibles retourne List<Personnage>
 				
 				for(Personnage cible : cibles) {
-					Joueur nom = cible.getProprio();
-					Joueur nomJoueur = c.getAuteur().getProprio();
-					
-					if(cible.getType() == s.getTypeCible()){
-						//Si le personnage appartient au joueur spï¿½cifiï¿½
-						if(nom==nomJoueur){
-							valeur-=s.getDegat();
-						} else {
-							valeur+=s.getDegat();
+					if(cible.getVie() >0) {
+						Joueur nom = cible.getProprio();
+						Joueur nomJoueur = c.getAuteur().getProprio();
+						if(cible.getType() == s.getTypeCible()){
+							//Si le personnage appartient au joueur spécifié
+							if(nom==nomJoueur){
+								valeur-=s.getDegat();
+							} else {
+								valeur+=s.getDegat();
+							}
 						}
 					}
 				}
