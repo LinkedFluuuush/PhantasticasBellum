@@ -1,17 +1,13 @@
 package IA;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import Controleur.Partie;
 import Model.Action;
 import Model.Attaque;
 import Model.Coup;
-import Model.Deplacement;
 import Model.Joueur;
 import Model.Personnage;
-import Model.Position;
 import Model.Sort;
 import Personnages.Magicien;
 
@@ -21,98 +17,30 @@ import Personnages.Magicien;
 public class Gaens extends AbstractIA{
 	
 	static int idGaens = 0;
-	int profondeur=4;
+	int profondeur=3;
 	
     public Gaens(int _profondeur){
     	super("Gaens" + (idGaens==0?"":"_"+idGaens));
     	idGaens++;
     	profondeur=_profondeur;
     }
-    
+
     public Gaens(){
     	super("Gaens" + (idGaens==0?"":"_"+idGaens));
     	idGaens++;
     }
-
+    
     @Override
     public Coup getCoup(Partie p) {
     	memoriseCoup(null);
     	alphaBeta(-9999, 9999, p);
         return getCoupMemorise();
     }
-
-    public synchronized List<Coup> getTousCoups(Partie partie) {
-        List<Coup> tousCoups = new ArrayList<Coup>();
-        
-        // Calculer toutes les cases libres
-        List<Position> casesLibres = partie.getToutesPositions();
-        for (Personnage perso : partie.listerEquipes()) {
-            casesLibres.remove(perso.getPosition());
-        }
-        
-        List<Personnage> tousPersonnages = partie.listerEquipes();
-       for (Personnage pf : partie.getJoueurActuel().listerEquipe()) {
-           if (pf.estVivant() && !pf.isDejaJoue()) {
-               tousCoups.addAll(getTousCoupsPersonnage(partie,pf, casesLibres, tousPersonnages));
-            }
-        }
-       return tousCoups;
-    }
     
-    private Collection<? extends Coup> getTousCoupsPersonnage(Partie partie,
-			Personnage pf, List<Position> casesLibres,
-			List<Personnage> tousPersonnages) {
-    	List<Coup> coups = new ArrayList<Coup>();
-    	
-    	if(!pf.isDejaJoue()) {
-            // Coup nul
-            coups.add(new Coup(pf, new ArrayList<Action>()));
-            
-            // Deplacements seuls
-            List<Deplacement> deplacementsTheoriques = pf.getDeplacements();
-            for (Deplacement d : deplacementsTheoriques) {
-            	if (partie.isCaseValide(d.getDestination()) && casesLibres.contains(d.getDestination())) {
-                    coups.add(new Coup(pf, d));
-                }
-            }
-            
-            // Attaques seules
-            for (Sort sort : pf.getAttaques()) {
-                // Tester si chaque personnage est atteignable
-                for (Personnage cible : tousPersonnages) {
-                    // Si le personnage est atteignable et en vie
-                    if (sort.peutAtteindre(pf.getPosition(), cible.getPosition()) && cible.estVivant() && (cible.getType() == sort.getTypeCible())) {
-
-                        // Construire la liste des cases ciblees avec le personnage cible comme centre
-                        List<Position> casesCiblees = sort.getZone().getCasesAccessibles(cible.getPosition());
-                        casesCiblees.removeAll(casesLibres);
-                        
-                        // Chercher les personnages sur ces cases
-                        List<Personnage> cibles = new ArrayList<Personnage>();
-                        cibles.add(cible);
-                        
-                        for (Personnage cibleCollaterale : tousPersonnages) {
-                            if (cibleCollaterale != cible  && cibleCollaterale.estVivant() && (cibleCollaterale.getType() == sort.getTypeCible())) {
-                                if (casesCiblees.contains(cibleCollaterale.getPosition())) {
-                                   cibles.add(cibleCollaterale);
-                                }
-                            }
-                        }
-                        
-                        // Construire le coup correspondant
-                        coups.add(new Coup(pf, new Attaque(sort, cibles)));
-                   }
-                }
-            }
-    	}
-    	
-		return coups;
-	}
-
 	private void alphaBeta(int alpha, int beta, Partie p){
         int alphaTmp, valMax = 0;
 
-        List<Coup> tousCoups = getTousCoups(p);
+        List<Coup> tousCoups = p.getTousCoups();
 
         for(Coup c : tousCoups) {
         	if(!c.getAuteur().isDejaJoue()) {
@@ -125,14 +53,12 @@ public class Gaens extends AbstractIA{
         }
 
         for(Coup c : tousCoups) {
-        	if(!c.getAuteur().isDejaJoue()) {
-	            alphaTmp = alphaBetaVal(c, p, profondeur, 0, 0, alpha, beta);
-	
-	            if(alphaTmp > alpha){
-	                alpha = alphaTmp;
-	                memoriseCoup(c);
-	            }
-        	}
+            alphaTmp = alphaBetaVal(c, p, profondeur, 0, 0, alpha, beta);
+
+            if(alphaTmp > alpha){
+                alpha = alphaTmp;
+                memoriseCoup(c);
+            }
         }
     }
 
@@ -149,12 +75,11 @@ public class Gaens extends AbstractIA{
             cout = cout - getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
-//                System.out.println("Cout de la branche : " + cout);
                 return cout;
             }
 
             betaTemp = 9999;
-            for (Coup nCoup : getTousCoups(pClone)) {
+            for (Coup nCoup : pClone.getTousCoups()) {
             	if(!nCoup.getAuteur().isDejaJoue()) {
             		val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, alpha, Math.min(beta, betaTemp));
 
@@ -170,12 +95,11 @@ public class Gaens extends AbstractIA{
             cout = cout + getHeuristique(c);
 
             if (pClone.estTerminee() || profActuelleTemp >= profMax) {
-                //System.out.println("Cout de la branche : " + cout);
                 return cout;
             }
 
             alphaTemp = -9999;
-            for(Coup nCoup : getTousCoups(pClone)){
+            for(Coup nCoup : pClone.getTousCoups()){
             	if(!nCoup.getAuteur().isDejaJoue()) {
             		val = alphaBetaVal(nCoup, pClone, profMax, profActuelleTemp, cout, Math.max(alpha, alphaTemp), beta);
 
@@ -214,13 +138,13 @@ public class Gaens extends AbstractIA{
 						Joueur nomJoueur = c.getAuteur().getProprio();
 						if(cible.getType() == s.getTypeCible()){
 							int vTemp;
-							
+							//Si le personnage appartient au joueur spécifié
 							if(cible instanceof Magicien) {
 								vTemp=10;
 							} else {
 								vTemp=s.getDegat();
 							}
-							//Si le personnage appartient au joueur spécifié
+							
 							if(nom==nomJoueur){
 								valeur-=vTemp;
 							} else {

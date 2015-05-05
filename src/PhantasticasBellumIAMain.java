@@ -11,7 +11,7 @@ import Exception.ExceptionParamJeu;
 import Exception.ExceptionPersonnage;
 import GUI.Fenetre;
 import IA.Gaens;
-import IA.IAAleatoireAgressive;
+import IA.IAG7;
 import Model.Joueur;
 import Model.Personnage;
 import Model.Position;
@@ -60,10 +60,10 @@ public class PhantasticasBellumIAMain {
     public static void main(String[] args) {
         // Initialise chaque joueur
 //        Joueur j1 = new Joueur("Joueur 1");
-        Joueur j1 = new IAAleatoireAgressive("Aleatoire 1");
+        Joueur j1 = new IAG7("bla");
  //       Joueur j1 = new Gaens();
 //        Joueur j2 = new IAAleatoire("Aleatoire 2");
-//        Joueur j2 = new IAAleatoireAgressive("Aleatoire 1");
+   //     Joueur j2 = new IAAleatoireAgressive("Aleatoire 1");
         Joueur j2 = new Gaens();
 
         Fenetre fenetre = new Fenetre();
